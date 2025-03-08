@@ -39,3 +39,6 @@ venv/
 .vscode/
 *.swp
 *.swo
+*.mov
+*.mp4
+*.zip

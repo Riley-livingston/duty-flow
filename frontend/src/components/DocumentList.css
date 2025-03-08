@@ -1,0 +1,243 @@
+.document-list {
+  margin-top: 20px;
+}
+
+.document-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.document-list-header h3 {
+  color: #333;
+  margin: 0;
+}
+
+.document-filter {
+  display: flex;
+  align-items: center;
+}
+
+.document-filter label {
+  margin-right: 10px;
+  font-weight: 600;
+}
+
+.document-filter select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.loading-indicator {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.no-documents {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.documents-table-wrapper {
+  overflow-x: auto;
+}
+
+.documents-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.documents-table th,
+.documents-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.documents-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.documents-table tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+.filename-cell {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
+.download-button {
+  padding: 6px 10px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.download-button:hover {
+  background-color: #3a7bc8;
+}
+
+.delete-button {
+  padding: 6px 10px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.document-list-container {
+  margin-bottom: 20px;
+}
+
+.document-list-container h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.document-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.document-card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.document-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.document-card-header {
+  padding: 12px 15px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.document-type {
+  font-weight: 600;
+  color: #4a90e2;
+}
+
+.document-date {
+  font-size: 13px;
+  color: #666;
+}
+
+.document-card-body {
+  padding: 15px;
+  min-height: 50px;
+}
+
+.document-filename {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+.document-description {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.document-card-actions {
+  padding: 10px 15px;
+  background-color: #f8f9fa;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.download-button, .delete-button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.download-button {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.download-button:hover {
+  background-color: #3a7bc8;
+}
+
+.delete-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+.empty-state {
+  padding: 30px;
+  text-align: center;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  color: #666;
+}
+
+.loading-message {
+  padding: 15px;
+  text-align: center;
+  color: #666;
+}
+
+.error-message {
+  padding: 15px;
+  text-align: center;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-radius: 6px;
+} 

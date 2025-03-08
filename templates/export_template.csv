@@ -1,0 +1,4 @@
+export_reference,product_id,export_date,quantity,destination
+EX-12345,ELEC-1234,2023-03-20,8,Canada
+EX-67890,TEXT-5678,2023-02-10,15,Mexico
+EX-24680,HOME-9012,2023-01-05,3,EU

@@ -1,0 +1,373 @@
+.import-analyzer {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.import-analyzer h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.upload-form {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+}
+
+.file-name {
+  margin-top: 5px;
+  font-size: 14px;
+  color: #666;
+}
+
+.submit-button {
+  padding: 10px 15px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-button:hover {
+  background-color: #3a7bc8;
+}
+
+.submit-button:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}
+
+.loading-indicator {
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+  color: #666;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.results-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.summary-box {
+  background-color: #e9f7ef;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.summary-report {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.summary-report pre {
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 14px;
+  color: #333;
+}
+
+.download-link {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.download-button {
+  display: inline-block;
+  padding: 10px 15px;
+  background-color: #28a745;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.download-button:hover {
+  background-color: #218838;
+}
+
+.transactions-table {
+  margin-top: 20px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th, table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+table tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+@media (max-width: 768px) {
+  .import-analyzer {
+    padding: 10px;
+  }
+  
+  table th, table td {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+}
+
+.refund-estimate-banner {
+  background-color: #28a745;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.refund-estimate-banner h2 {
+  margin: 0 0 10px 0;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.refund-amount {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.eligible-row {
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.eligible-row:hover {
+  background-color: rgba(40, 167, 69, 0.2) !important;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sample-button {
+  padding: 10px 15px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sample-button:hover {
+  background-color: #5a6268;
+}
+
+.sample-button:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}
+
+.pdf-button {
+  padding: 10px 15px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-decoration: none;
+}
+
+.pdf-button:hover {
+  background-color: #c82333;
+}
+
+.help-text {
+  font-size: 14px;
+  color: #6c757d;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+.smb-guidance {
+  background-color: #f8f9fa;
+  border-left: 4px solid #4a90e2;
+  padding: 15px;
+  margin: 20px 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.smb-guidance h4 {
+  margin-top: 0;
+  color: #4a90e2;
+}
+
+.analysis-mode {
+  margin-bottom: 20px;
+}
+
+.analysis-mode label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.radio-group {
+  display: flex;
+  gap: 20px;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.radio-group input {
+  margin-right: 8px;
+}
+
+.matched-row {
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.matched-row:hover {
+  background-color: rgba(40, 167, 69, 0.2) !important;
+}
+
+.file-format-help {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-left: 4px solid #6c757d;
+  border-radius: 0 4px 4px 0;
+}
+
+.file-format-help h4 {
+  margin-top: 0;
+  color: #6c757d;
+  font-size: 16px;
+}
+
+.file-format-help p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.form-actions {
+  margin-top: 20px;
+}
+
+.tab-navigation {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab-button {
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 16px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-button:hover {
+  color: #4a90e2;
+}
+
+.tab-button.active {
+  color: #4a90e2;
+  border-bottom-color: #4a90e2;
+}
+
+.tab-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.no-analysis-message {
+  background-color: #f8f9fa;
+  border-left: 4px solid #6c757d;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 0 4px 4px 0;
+  text-align: center;
+}
+
+.no-analysis-message p {
+  margin-bottom: 15px;
+  color: #555;
+}
+
+.primary-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.primary-button:hover {
+  background-color: #3a7bc8;
+}
+
+.requirements-section, .documents-section {
+  padding: 20px 0;
+}

@@ -1,0 +1,110 @@
+.document-upload {
+  margin-bottom: 20px;
+}
+
+.document-upload h3 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.drag-drop-area {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 30px;
+  text-align: center;
+  margin-bottom: 15px;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.drag-drop-area.active {
+  border-color: #4a90e2;
+  background-color: rgba(74, 144, 226, 0.05);
+}
+
+.file-input {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100px;
+}
+
+.file-input input[type="file"] {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.file-input label {
+  color: #666;
+  transition: color 0.2s;
+  font-size: 16px;
+  z-index: 1;
+}
+
+.file-input:hover label {
+  color: #4a90e2;
+}
+
+.file-input input.has-file + label {
+  color: #4a90e2;
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group select,
+.form-group input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.form-group select:focus,
+.form-group input[type="text"]:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.upload-button {
+  padding: 10px 15px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.upload-button:hover {
+  background-color: #3a7bc8;
+}
+
+.upload-button:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+} 

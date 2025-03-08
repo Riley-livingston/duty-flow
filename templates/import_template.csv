@@ -1,0 +1,4 @@
+entry_number,product_id,import_date,quantity,duty_paid
+E00001,ELEC-1234,2023-01-15,10,500.0
+E00001,TEXT-5678,2023-01-15,20,300.0
+E00002,HOME-9012,2022-11-20,5,150.0

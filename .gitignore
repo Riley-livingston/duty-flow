@@ -42,3 +42,6 @@ venv/
 *.mov
 *.mp4
 *.zip
+*.pdf
+results/*.pdf
+documentation/*.pdf

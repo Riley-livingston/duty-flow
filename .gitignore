@@ -45,3 +45,7 @@ venv/
 *.pdf
 results/*.pdf
 documentation/*.pdf
+# Generated files
+documentation_guide.pdf
+*.generated.pdf
+results/*.csv

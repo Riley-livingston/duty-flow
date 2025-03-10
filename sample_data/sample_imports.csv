@@ -1,0 +1,5 @@
+entry_number,import_date,product_code,product_description,duty_paid,quantity
+I1001,2023-01-15,PC001,Industrial Gear,1250.75,50
+I1002,2023-02-20,PC002,Electronic Component,985.5,100
+I1003,2023-03-10,PC003,Chemical Compound,2100.25,75
+I1004,2023-04-05,PC001,Industrial Gear,1094.25,40

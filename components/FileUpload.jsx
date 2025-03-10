@@ -1,138 +1,251 @@
 import React, { useState } from 'react';
-import './FileUpload.css';
+import { Box, Button, Typography, Paper, List, ListItem, 
+         ListItemIcon, ListItemText, CircularProgress, Divider,
+         Chip, Grid } from '@mui/material';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
+import { useDropzone } from 'react-dropzone';
+import axios from 'axios';
 
-const FileUpload = ({ onStartProcessing, onProcessed, onError }) => {
-  const [importFile, setImportFile] = useState(null);
-  const [exportFile, setExportFile] = useState(null);
-  const [dragActive, setDragActive] = useState(false);
+function FileUpload({ onFilesProcessed }) {
+  const [files, setFiles] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState(null);
+  const [documentTypes, setDocumentTypes] = useState({});
 
-  const handleImportFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setImportFile(e.target.files[0]);
-    }
-  };
-
-  const handleExportFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setExportFile(e.target.files[0]);
-    }
-  };
-
-  const handleDrag = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const onDrop = (acceptedFiles) => {
+    const newFiles = acceptedFiles.map(file => Object.assign(file, {
+      preview: URL.createObjectURL(file)
+    }));
+    setFiles(prevFiles => [...prevFiles, ...newFiles]);
     
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true);
-    } else if (e.type === 'dragleave') {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
+    // Auto-detect document types based on filenames
+    const updatedDocTypes = {...documentTypes};
     
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      // Determine file type based on name or let user choose
-      const file = e.dataTransfer.files[0];
-      if (file.name.toLowerCase().includes('import')) {
-        setImportFile(file);
-      } else if (file.name.toLowerCase().includes('export')) {
-        setExportFile(file);
+    acceptedFiles.forEach(file => {
+      const fileName = file.name.toLowerCase();
+      if (fileName.includes('import') || fileName.includes('entry') || fileName.includes('7501')) {
+        updatedDocTypes[file.name] = 'Import Entry';
+      } else if (fileName.includes('export') || fileName.includes('declaration')) {
+        updatedDocTypes[file.name] = 'Export Document';
+      } else if (fileName.includes('invoice')) {
+        updatedDocTypes[file.name] = 'Commercial Invoice';
+      } else if (fileName.includes('bill') || fileName.includes('lading')) {
+        updatedDocTypes[file.name] = 'Bill of Lading';
       } else {
-        // If can't determine, default to import file
-        setImportFile(file);
+        updatedDocTypes[file.name] = 'Unknown';
       }
-    }
+    });
+    
+    setDocumentTypes(updatedDocTypes);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!importFile) {
-      onError("Import file is required");
-      return;
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+      'application/vnd.ms-excel': ['.xls'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/png': ['.png']
     }
+  });
+
+  const removeFile = (fileToRemove) => {
+    setFiles(files.filter(file => file !== fileToRemove));
+    const updatedDocTypes = {...documentTypes};
+    delete updatedDocTypes[fileToRemove.name];
+    setDocumentTypes(updatedDocTypes);
+  };
+
+  const updateDocumentType = (fileName, newType) => {
+    setDocumentTypes({
+      ...documentTypes,
+      [fileName]: newType
+    });
+  };
+
+  const handleUpload = async () => {
+    if (files.length === 0) return;
     
-    onStartProcessing();
+    setUploading(true);
+    setUploadStatus('uploading');
     
     const formData = new FormData();
-    formData.append('import_file', importFile);
-    
-    if (exportFile) {
-      formData.append('export_file', exportFile);
-    }
-    
+    files.forEach((file) => {
+      formData.append('files', file);
+      formData.append('documentTypes', JSON.stringify(documentTypes));
+    });
+
     try {
-      // Call the backend API
-      const response = await fetch('http://localhost:5000/api/scan', {
-        method: 'POST',
-        body: formData,
+      const response = await axios.post('/api/process-documents', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
       
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to process files');
-      }
-      
-      onProcessed(data);
+      setUploadStatus('success');
+      onFilesProcessed(response.data);
     } catch (error) {
-      onError(error.message || "Failed to process files");
+      console.error('Error uploading files:', error);
+      setUploadStatus('error');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const generateTestDocuments = async () => {
+    setUploading(true);
+    setUploadStatus('generating');
+    
+    try {
+      const response = await axios.post('/api/generate-test-documents', {
+        companyName: localStorage.getItem('companyName') || 'Test Company Inc.',
+        numEntries: 3 // Generate 3 import entries with matching exports
+      });
+      
+      if (response.data.success) {
+        setUploadStatus('success');
+        onFilesProcessed(response.data.documentData);
+      } else {
+        throw new Error('Failed to generate test documents');
+      }
+    } catch (error) {
+      console.error('Error generating test documents:', error);
+      setUploadStatus('error');
+    } finally {
+      setUploading(false);
     }
   };
 
   return (
-    <div className="file-upload-container">
-      <form onSubmit={handleSubmit} className="upload-form">
-        <div 
-          className={`drag-drop-area ${dragActive ? 'active' : ''}`}
-          onDragEnter={handleDrag}
-          onDragOver={handleDrag}
-          onDragLeave={handleDrag}
-          onDrop={handleDrop}
-        >
-          <div className="file-inputs">
-            <div className="file-input-group">
-              <label htmlFor="import-file">Import Transactions (CSV) *</label>
-              <input
-                type="file"
-                id="import-file"
-                accept=".csv"
-                onChange={handleImportFileChange}
-              />
-              {importFile && <p className="file-name">{importFile.name}</p>}
-            </div>
-            
-            <div className="file-input-group">
-              <label htmlFor="export-file">Export Transactions (CSV)</label>
-              <input
-                type="file"
-                id="export-file"
-                accept=".csv"
-                onChange={handleExportFileChange}
-              />
-              {exportFile && <p className="file-name">{exportFile.name}</p>}
-            </div>
-          </div>
+    <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+      <Typography variant="h5" gutterBottom>
+        Upload Documents
+      </Typography>
+      <Typography variant="body1" sx={{ mb: 2 }}>
+        Upload your import and export documents to begin the drawback claim process.
+      </Typography>
+      
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        <Grid item xs={12} md={6}>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<CloudUploadIcon />}
+            onClick={generateTestDocuments}
+            disabled={uploading}
+            fullWidth
+          >
+            Generate Test Documents
+          </Button>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Typography variant="body2" color="textSecondary">
+            Generate realistic test documents for demonstration purposes
+          </Typography>
+        </Grid>
+      </Grid>
+      
+      <Divider sx={{ my: 2 }} />
+      
+      <Box
+        {...getRootProps()}
+        sx={{
+          border: '2px dashed #cccccc',
+          borderRadius: 2,
+          p: 3,
+          mb: 2,
+          textAlign: 'center',
+          cursor: 'pointer',
+          backgroundColor: isDragActive ? '#f0f8ff' : 'transparent'
+        }}
+      >
+        <input {...getInputProps()} />
+        <CloudUploadIcon sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
+        <Typography>
+          {isDragActive
+            ? "Drop the files here..."
+            : "Drag & drop files here, or click to select files"}
+        </Typography>
+        <Typography variant="caption" color="textSecondary">
+          Supported formats: PDF, Excel, Images
+        </Typography>
+      </Box>
+
+      {files.length > 0 && (
+        <>
+          <Typography variant="subtitle1" gutterBottom>
+            Selected Documents ({files.length})
+          </Typography>
+          <List>
+            {files.map((file) => (
+              <ListItem
+                key={file.name}
+                secondaryAction={
+                  <Button 
+                    onClick={() => removeFile(file)}
+                    startIcon={<DeleteIcon />}
+                    size="small"
+                  >
+                    Remove
+                  </Button>
+                }
+              >
+                <ListItemIcon>
+                  <InsertDriveFileIcon />
+                </ListItemIcon>
+                <ListItemText 
+                  primary={file.name}
+                  secondary={`${(file.size / 1024).toFixed(1)} KB`} 
+                />
+                <Chip 
+                  label={documentTypes[file.name] || 'Unclassified'} 
+                  size="small" 
+                  color={documentTypes[file.name] ? "primary" : "default"}
+                  sx={{ mr: 2 }}
+                />
+              </ListItem>
+            ))}
+          </List>
+
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={uploading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
+            onClick={handleUpload}
+            disabled={uploading}
+            sx={{ mt: 2 }}
+            fullWidth
+          >
+            {uploading ? 'Processing...' : 'Process Documents'}
+          </Button>
           
-          <p className="drag-drop-text">
-            Drag and drop files here, or click to select files
-          </p>
-        </div>
-        
-        <button 
-          type="submit" 
-          className="submit-button"
-          disabled={!importFile}
-        >
-          Scan for Eligible Refunds
-        </button>
-      </form>
-    </div>
+          {uploadStatus && (
+            <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+              {uploadStatus === 'success' ? (
+                <CheckCircleIcon color="success" sx={{ mr: 1 }} />
+              ) : uploadStatus === 'error' ? (
+                <ErrorIcon color="error" sx={{ mr: 1 }} />
+              ) : (
+                <CircularProgress size={20} sx={{ mr: 1 }} />
+              )}
+              <Typography color={uploadStatus === 'success' ? 'success.main' : 
+                          uploadStatus === 'error' ? 'error.main' : 'textPrimary'}>
+                {uploadStatus === 'uploading' && 'Uploading and processing documents...'}
+                {uploadStatus === 'generating' && 'Generating test documents...'}
+                {uploadStatus === 'success' && 'Documents processed successfully!'}
+                {uploadStatus === 'error' && 'Error processing documents. Please try again.'}
+              </Typography>
+            </Box>
+          )}
+        </>
+      )}
+    </Paper>
   );
-};
+}
 
 export default FileUpload; 

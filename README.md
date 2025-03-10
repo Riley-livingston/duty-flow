@@ -81,3 +81,33 @@ DutyFlow is specifically designed with small and medium-sized businesses in mind
 - Estimated refund calculations
 - PDF reports suitable for sharing with customs brokers
 - Guidance on next steps for claiming duty drawbacks 
+
+## Testing Tools
+
+### PDF Generation and Testing
+
+DutyFlow includes tools for testing PDF generation and form filling:
+
+1. Run the comprehensive test script:
+   ```
+   python test_direct_form_filling.py
+   ```
+   
+   This script uses the consolidated functionality in `enhanced_test_documents.py` to:
+   - Generate realistic test documents
+   - Create sample import/export data
+   - Fill CBP Form 7551 with test data
+   
+2. For more granular testing, you can use functions in `enhanced_test_documents.py`:
+   ```python
+   from enhanced_test_documents import run_comprehensive_test, TestDocumentGenerator
+   
+   # Generate only test documents without form filling
+   results = run_comprehensive_test(fill_form=False)
+   
+   # Generate a complete drawback package
+   generator = TestDocumentGenerator("Your Company Name")
+   package = generator.generate_complete_drawback_package(num_entries=5)
+   ```
+
+The test scripts will generate sample documents in the `test_documents` directory and sample data in the `test_data` directory. 

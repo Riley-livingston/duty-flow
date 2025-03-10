@@ -10,6 +10,12 @@ from datetime import datetime
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+import pdfrw
+from io import BytesIO
+import random
+import string
+from pdfrw import PdfReader, PdfDict
+from dateutil.relativedelta import relativedelta
 
 def generate_cbp_form_7551(data, output_path="cbp_form_7551.pdf"):
     """
@@ -623,3 +629,703 @@ if __name__ == "__main__":
             print(f"Results file not found: {results_file}")
     except Exception as e:
         print(f"Error generating PDF: {e}")
+
+class CBPFormGenerator:
+    """Generator for CBP Form 7551 (Drawback Entry)"""
+    
+    def __init__(self):
+        # Path to the blank CBP form template
+        self.template_path = os.path.join(os.path.dirname(__file__), 'templates/cbp form 7551.pdf')
+        self.output_directory = os.path.join(os.path.dirname(__file__), 'generated_forms')
+        
+        # Ensure output directory exists
+        if not os.path.exists(self.output_directory):
+            os.makedirs(self.output_directory)
+            
+        # Validate template exists
+        if not os.path.exists(self.template_path):
+            raise FileNotFoundError(f"CBP Form 7551 template not found at: {self.template_path}")
+    
+    def generate_form(self, data):
+        """
+        Generate a filled CBP Form 7551 based on provided data
+        
+        Args:
+            data (dict): Dictionary containing form field values
+            
+        Returns:
+            str: Path to the generated PDF file
+        """
+        # Create a unique filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        company_name = data.get('claimant_name', '').replace(' ', '_')[:20]
+        output_filename = f"drawback_form_7551_{company_name}_{timestamp}.pdf"
+        output_path = os.path.join(self.output_directory, output_filename)
+        
+        try:
+            # Try using PyPDF2 first (newer method)
+            from PyPDF2 import PdfReader, PdfWriter
+            
+            reader = PdfReader(self.template_path)
+            writer = PdfWriter()
+            
+            # Copy pages from input to output
+            for page in reader.pages:
+                writer.add_page(page)
+            
+            # Update form fields
+            if reader.get_fields():
+                writer.update_page_form_field_values(
+                    writer.pages[0], 
+                    {k: v for k, v in data.items() if k in reader.get_fields()}
+                )
+                
+                # Special handling for checkboxes
+                for field_name, field_value in data.items():
+                    if field_name in ['acclerated', 'abi', 'manual', 'yes14', 'no14'] and field_value:
+                        # For checkboxes
+                        if field_value.lower() == 'yes' or field_value == '/Yes':
+                            writer.update_page_form_field_values(
+                                writer.pages[0], 
+                                {field_name: '/Yes'}
+                            )
+            
+            # Write the result
+            with open(output_path, "wb") as output_file:
+                writer.write(output_file)
+            
+        except Exception as e:
+            print(f"Error using PyPDF2: {e}")
+            print("Falling back to pdfrw method...")
+            
+            # Fallback to pdfrw method
+            template = pdfrw.PdfReader(self.template_path)
+            
+            # Fill in form fields
+            for page in template.pages:
+                if page.Annots:
+                    for annot in page.Annots:
+                        if annot and annot.get('/T') and annot.get('/T') in data:
+                            field_name = annot.get('/T')
+                            field_value = data[field_name]
+                            
+                            # Handle checkboxes
+                            if field_name in ['acclerated', 'abi', 'manual', 'yes14', 'no14']:
+                                if field_value.lower() == 'yes' or field_value == '/Yes':
+                                    annot.update(pdfrw.PdfDict(V=pdfrw.PdfName('Yes')))
+                                else:
+                                    annot.update(pdfrw.PdfDict(V=pdfrw.PdfName('Off')))
+                            else:
+                                # For text fields
+                                annot.update(pdfrw.PdfDict(V=field_value))
+                                
+                            # Update appearance stream for immediate visibility
+                            annot.update(pdfrw.PdfDict(AP=''))
+            
+            # Write the filled PDF to file
+            pdfrw.PdfWriter().write(output_path, template)
+        
+        return output_path
+    
+    def generate_form_from_uploaded_data(self, import_df, export_df, company_info):
+        """
+        Generate a form from uploaded import and export data
+        
+        Args:
+            import_df (DataFrame): Import data
+            export_df (DataFrame): Export data
+            company_info (dict): Company information
+            
+        Returns:
+            str: Path to generated PDF
+        """
+        eligible_matches = self._find_eligible_matches(import_df, export_df)
+        
+        if not eligible_matches:
+            raise ValueError("No eligible drawback matches found in the uploaded data")
+        
+        # Calculate totals
+        total_duty_paid = sum(match['duty_amount'] for match in eligible_matches)
+        refund_amount = total_duty_paid * 0.99  # 99% of duty paid
+        
+        # Generate a unique drawback entry number
+        drawback_entry_no = f"DB{datetime.now().strftime('%Y%m%d')}-{self._generate_unique_id(5)}"
+        
+        # Create form data with exact field names from the PDF
+        form_data = {
+            # Basic identification fields
+            'drawbacknumber': drawback_entry_no,
+            'portcode': company_info.get('port_code', ''),
+            'drawbacksection': '1313(j)(1)',
+            
+            # Claimant information
+            'NameandAddressOfClaimant': (
+                f"{company_info.get('name', '')}\n"
+                f"{company_info.get('address', '')}\n"
+                f"{company_info.get('city_state_zip', '')}"
+            ),
+            'claimantID': company_info.get('importer_number', ''),
+            
+            # Financial information
+            'TotalDrawbackClaimed': f"${refund_amount:,.2f}",
+            'MPFClaimed': f"${0:,.2f}",  # Typically 0 for simple cases
+            
+            # Set checkboxes - these need special handling
+            'acclerated': '/Yes',  # Check accelerated payment
+            'abi': '/Off',         # Electronic filing - Off if paper
+            
+            # Certificate info
+            'printedname': company_info.get('contact_name', ''),
+            'Date500': datetime.now().strftime('%m/%d/%Y')
+        }
+        
+        # Add import entries (up to 4 on main form)
+        for i, match in enumerate(eligible_matches[:4], 1):
+            form_data[f'ImportEntry{i}'] = match['import_entry']
+            form_data[f'PortCode{i}'] = company_info.get('port_code', '')
+            form_data[f'ImportDate{i}'] = match['import_date'].strftime('%m/%d/%Y') if hasattr(match['import_date'], 'strftime') else match['import_date']
+            form_data[f'Descrip{i}'] = match['product_description'][:30]  # Limit length
+            form_data[f'Duty{i}'] = f"${match['duty_amount']:,.2f}"
+            form_data[f'Duty99_{i}'] = f"${match['refund_amount']:,.2f}"
+        
+        # Add export information
+        for i, match in enumerate(eligible_matches[:3], 1):
+            form_data[f'Date39_{i}'] = match['export_date'].strftime('%m/%d/%Y') if hasattr(match['export_date'], 'strftime') else match['export_date']
+            form_data[f'NameofExporter{i}'] = company_info.get('name', '')[:30]
+            form_data[f'DescripofArticle{i}'] = match['product_description'][:30]
+            form_data[f'Export{i}'] = match['export_reference']
+        
+        # Generate the form
+        pdf_path = self.generate_form(form_data)
+        
+        # Generate attachment with detailed information
+        attachment_path = self.generate_attachment(import_df, export_df, eligible_matches, form_data)
+        
+        return pdf_path
+    
+    def generate_attachment(self, import_df, export_df, eligible_matches, form_data, output_filename=None):
+        """
+        Generate a detailed attachment for CBP Form 7551
+        
+        Args:
+            import_df (DataFrame): Import data
+            export_df (DataFrame): Export data
+            eligible_matches (list): List of eligible import-export matches
+            form_data (dict): Form data used for the main form
+            output_filename (str, optional): Output filename
+            
+        Returns:
+            str: Path to the generated attachment
+        """
+        if output_filename is None:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            company_name = (form_data.get('claimant_name') or '').replace(' ', '_')[:20]
+            output_filename = f"attachment_{company_name}_{timestamp}.pdf"
+        
+        output_path = os.path.join(self.output_directory, output_filename)
+        
+        # Create the PDF document
+        doc = SimpleDocTemplate(output_path, pagesize=letter)
+        
+        # Get styles
+        styles = getSampleStyleSheet()
+        title_style = styles['Heading1']
+        heading_style = styles['Heading2']
+        normal_style = styles['Normal']
+        
+        # Extract data safely (with fallbacks)
+        drawback_entry = (
+            form_data.get('drawbacknumber') or
+            form_data.get('drawback_entry_no') or
+            f"DB{datetime.now().strftime('%Y%m%d')}"
+        )
+        
+        claimant_name = (
+            form_data.get('claimant_name') or
+            form_data.get('NameandAddressOfClaimant', '').split('\n')[0] if form_data.get('NameandAddressOfClaimant') else
+            ''
+        )
+        
+        claimant_address = (
+            form_data.get('claimant_address') or
+            ''
+        )
+        
+        claimant_city_state_zip = (
+            form_data.get('claimant_city_state_zip') or
+            ''
+        )
+        
+        claimant_contact = (
+            form_data.get('claimant_contact') or
+            form_data.get('printedname') or
+            ''
+        )
+        
+        total_duty_paid = (
+            form_data.get('total_duty_paid') or
+            form_data.get('total_p1') or
+            f"${sum([match['duty_amount'] for match in eligible_matches]):.2f}"
+        )
+        
+        total_refund_amount = (
+            form_data.get('total_refund_amount') or
+            form_data.get('TotalDrawbackClaimed') or
+            f"${sum([match['refund_amount'] for match in eligible_matches]):.2f}"
+        )
+        
+        # Create document elements
+        elements = []
+        
+        # Title
+        elements.append(Paragraph(f"Attachment to Drawback Entry {drawback_entry}", title_style))
+        elements.append(Spacer(1, 12))
+        
+        # Claimant Info
+        elements.append(Paragraph("Claimant Information", heading_style))
+        elements.append(Paragraph(f"Claimant: {claimant_name}", normal_style))
+        elements.append(Paragraph(f"Address: {claimant_address}, {claimant_city_state_zip}", normal_style))
+        elements.append(Paragraph(f"Contact: {claimant_contact}", normal_style))
+        elements.append(Spacer(1, 12))
+        
+        # Eligible Matches
+        elements.append(Paragraph("Eligible Drawback Items", heading_style))
+        elements.append(Spacer(1, 6))
+        
+        # Create matches table
+        if eligible_matches:
+            # Create table headers
+            match_data = [['Import Entry', 'Import Date', 'Export Reference', 'Export Date', 
+                          'Product Code', 'Description', 'Duty Amount', 'Refund Amount']]
+            
+            # Add data rows
+            for match in eligible_matches:
+                match_data.append([
+                    match['import_entry'],
+                    match['import_date'].strftime('%Y-%m-%d') if hasattr(match['import_date'], 'strftime') else str(match['import_date']),
+                    match['export_reference'],
+                    match['export_date'].strftime('%Y-%m-%d') if hasattr(match['export_date'], 'strftime') else str(match['export_date']),
+                    match['product_code'],
+                    match['product_description'],
+                    f"${match['duty_amount']:,.2f}",
+                    f"${match['refund_amount']:,.2f}"
+                ])
+            
+            match_table = Table(match_data)
+            match_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            elements.append(match_table)
+            
+            # Add summary
+            elements.append(Spacer(1, 12))
+            elements.append(Paragraph("Summary", heading_style))
+            elements.append(Paragraph(f"Total eligible items: {len(eligible_matches)}", normal_style))
+            
+            # Use .get() method to avoid KeyError - replace with fallbacks
+            elements.append(Paragraph(f"Total duty paid: {total_duty_paid}", normal_style))
+            elements.append(Paragraph(f"Total refund amount: {total_refund_amount}", normal_style))
+        else:
+            elements.append(Paragraph("No eligible matches found", normal_style))
+        
+        # Build the document
+        doc.build(elements)
+        
+        return output_path
+    
+    def generate_summary_csv(self, claims_data, output_filename=None):
+        """
+        Generate a CSV summary of all claims
+        
+        Args:
+            claims_data (list): List of dictionaries containing claim data
+            output_filename (str, optional): Filename for the CSV
+            
+        Returns:
+            str: Path to the generated CSV file
+        """
+        import csv
+        
+        if output_filename is None:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_filename = f"drawback_claims_summary_{timestamp}.csv"
+        
+        output_path = os.path.join(self.output_directory, output_filename)
+        
+        # Determine fieldnames from the first claim's keys
+        if not claims_data:
+            raise ValueError("No claims data provided")
+            
+        fieldnames = list(claims_data[0].keys())
+        
+        with open(output_path, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(claims_data)
+            
+        return output_path
+
+    def _find_eligible_matches(self, import_df, export_df):
+        """
+        Find eligible import-export matches for drawback
+        
+        Args:
+            import_df (DataFrame): Import data
+            export_df (DataFrame): Export data
+            
+        Returns:
+            list: List of dictionaries with matching import-export pairs
+        """
+        eligible_matches = []
+        
+        # Convert dates to datetime
+        if 'import_date' in import_df.columns:
+            import_df['import_date'] = pd.to_datetime(import_df['import_date'])
+        if 'export_date' in export_df.columns:
+            export_df['export_date'] = pd.to_datetime(export_df['export_date'])
+        
+        # Match imports and exports based on product_code
+        for _, export_row in export_df.iterrows():
+            export_date = export_row['export_date']
+            product_code = export_row['product_code']
+            
+            # Find matching imports (same product code, imported before export)
+            matching_imports = import_df[
+                (import_df['product_code'] == product_code) & 
+                (import_df['import_date'] < export_date) & 
+                (import_df['import_date'] > export_date - pd.Timedelta(days=3*365))  # 3-year window
+            ]
+            
+            for _, import_row in matching_imports.iterrows():
+                match = {
+                    'import_entry': import_row.get('entry_number', 'Unknown'),
+                    'import_date': import_row['import_date'],
+                    'export_reference': export_row.get('reference_number', 'Unknown'),
+                    'export_date': export_row['export_date'],
+                    'product_code': product_code,
+                    'product_description': import_row.get('product_description', 'Unknown'),
+                    'duty_amount': float(import_row.get('duty_paid', 0)),
+                    'refund_amount': float(import_row.get('duty_paid', 0)) * 0.99
+                }
+                eligible_matches.append(match)
+        
+        return eligible_matches
+
+    def _get_date_range(self, dates):
+        """
+        Format a list of dates as a range string
+        
+        Args:
+            dates (list): List of datetime objects
+            
+        Returns:
+            str: Formatted date range string
+        """
+        if not dates:
+            return "N/A"
+        
+        dates = [pd.to_datetime(date) for date in dates]
+        earliest = min(dates).strftime('%Y-%m-%d')
+        latest = max(dates).strftime('%Y-%m-%d')
+        
+        if earliest == latest:
+            return earliest
+        else:
+            return f"{earliest} to {latest}"
+
+    def _generate_unique_id(self, length=8):
+        """Generate a unique ID string"""
+        return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+
+def process_and_generate_form(import_file_path, export_file_path, company_info):
+    """
+    Process import and export data files and generate a filled CBP Form 7551
+    
+    Args:
+        import_file_path (str): Path to import data CSV
+        export_file_path (str): Path to export data CSV
+        company_info (dict): Dictionary with company information
+        
+    Returns:
+        dict: Dictionary with paths to generated files
+    """
+    # Load data
+    import_df = pd.read_csv(import_file_path)
+    export_df = pd.read_csv(export_file_path)
+    
+    # Initialize form generator
+    generator = CBPFormGenerator()
+    
+    # First, find eligible matches
+    eligible_matches = generator._find_eligible_matches(import_df, export_df)
+    
+    if not eligible_matches:
+        raise ValueError("No eligible drawback matches found in the uploaded data")
+    
+    # Generate form with data
+    pdf_path = generator.generate_form_from_uploaded_data(import_df, export_df, company_info)
+    
+    # Calculate totals for the attachment
+    total_duty_paid = sum(match['duty_amount'] for match in eligible_matches)
+    refund_amount = total_duty_paid * 0.99  # 99% of duty paid
+    
+    # Prepare form data for attachment
+    form_data = {
+        'claimant_name': company_info.get('name', ''),
+        'claimant_address': company_info.get('address', ''),
+        'claimant_city_state_zip': company_info.get('city_state_zip', ''),
+        'claimant_contact': company_info.get('contact_name', ''),
+        'drawbacknumber': f"DB{datetime.now().strftime('%Y%m%d')}",
+        'total_duty_paid': f"${total_duty_paid:,.2f}",
+        'refund_percentage': '99%',
+        'total_refund_amount': f"${refund_amount:,.2f}"
+    }
+    
+    # Generate attachment with the eligible matches we found
+    attachment_path = generator.generate_attachment(import_df, export_df, eligible_matches, form_data)
+    
+    return {
+        'form': pdf_path,
+        'attachment': attachment_path
+    }
+
+def fill_drawback_form(import_entries, export_docs, company_info):
+    """
+    Fill the CBP Form 7551 (Drawback Entry) based on provided import and export data
+    """
+    import datetime
+    import re
+    import random
+    
+    # Path to the blank CBP Form 7551
+    template_path = "templates/cbp form 7551.pdf"
+    
+    # Read the template
+    template = PdfReader(template_path)
+    
+    # Format dates properly
+    def format_date(date_value):
+        """Format date to MM/DD/YYYY format"""
+        if isinstance(date_value, datetime.datetime):
+            return date_value.strftime('%m/%d/%Y')
+        elif isinstance(date_value, str):
+            try:
+                # Try to parse as YYYY-MM-DD
+                date_obj = datetime.datetime.strptime(date_value, '%Y-%m-%d')
+                return date_obj.strftime('%m/%d/%Y')
+            except ValueError:
+                try:
+                    # Try to parse as MM/DD/YYYY
+                    date_obj = datetime.datetime.strptime(date_value, '%m/%d/%Y')
+                    return date_value  # Already in correct format
+                except ValueError:
+                    # Just return as is if we can't parse it
+                    return date_value
+        else:
+            return ""
+    
+    # Calculate values
+    total_import_value = 0
+    total_duty_paid = 0
+    
+    for entry in import_entries:
+        if isinstance(entry.get("total_value"), (int, float)):
+            total_import_value += entry["total_value"]
+        elif "line_items" in entry:
+            # Calculate from line items if total not provided
+            for item in entry["line_items"]:
+                if "value" in item and isinstance(item["value"], (int, float)):
+                    total_import_value += item["value"]
+        
+        if isinstance(entry.get("total_duty"), (int, float)):
+            total_duty_paid += entry["total_duty"]
+        elif "line_items" in entry:
+            # Calculate from line items if total not provided
+            for item in entry["line_items"]:
+                if "duty_amount" in item and isinstance(item["duty_amount"], (int, float)):
+                    total_duty_paid += item["duty_amount"]
+    
+    # Calculate export values
+    total_export_value = 0
+    for doc in export_docs:
+        if isinstance(doc.get("total_value"), (int, float)):
+            total_export_value += doc["total_value"]
+        elif "items" in doc:
+            for item in doc["items"]:
+                if "value" in item and isinstance(item["value"], (int, float)):
+                    total_export_value += item["value"]
+    
+    # Calculate drawback amount (typically 99% of duties paid on exported merchandise)
+    export_ratio = min(1.0, total_export_value / max(1, total_import_value))
+    drawback_amount = round(total_duty_paid * export_ratio * 0.99, 2)  # 99% of eligible duties
+    
+    # Create a unique drawback number
+    drawback_number = f"DB-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+    
+    # Format the claimant address
+    claimant_address = "\n".join([
+        company_info['name'],
+        company_info.get('address', ''),
+        company_info.get('city_state_zip', '')
+    ])
+    
+    # Format preparer address (same as claimant in this case)
+    preparer_address = "\n".join([
+        company_info.get('contact_name', 'John Trader') + ", Import Manager",
+        company_info['name'],
+        company_info.get('address', ''),
+        company_info.get('city_state_zip', ''),
+        company_info.get('phone', '(555) 123-4567')
+    ])
+    
+    # Current date
+    current_date = datetime.datetime.now().strftime('%m/%d/%Y')
+    
+    # Get formatted import dates
+    import_dates = []
+    for entry in import_entries:
+        if entry.get("import_date"):
+            import_dates.append(format_date(entry["import_date"]))
+    
+    # Get formatted export dates
+    export_dates = []
+    for doc in export_docs:
+        if doc.get("export_date"):
+            export_dates.append(format_date(doc["export_date"]))
+    
+    # Extract HTS codes and descriptions from import data
+    hts_codes = []
+    descriptions = []
+    quantities = []
+    
+    for entry in import_entries:
+        if "line_items" in entry:
+            for item in entry["line_items"]:
+                if "hts_code" in item:
+                    hts_codes.append(item["hts_code"])
+                if "description" in item:
+                    descriptions.append(item["description"])
+                if "quantity" in item:
+                    quantities.append(str(item["quantity"]))
+    
+    # Create a comprehensive field mapping
+    field_mapping = {
+        # Header information
+        'drawbacknumber': drawback_number,
+        'portcode': '3901',  # Chicago
+        'entrytypecode': '01',
+        'claimantID': company_info.get('importer_number', '12-3456789'),
+        'suretycode': '123',
+        'bondtype': '9',
+        'brokerID': 'BR123456',
+        
+        # Section 1: Basic claim info
+        'NameandAddressOfClaimant': claimant_address,
+        'NameandAddressofPreparer': preparer_address,
+        'TotalDrawbackClaimed': f"${drawback_amount:,.2f}",
+        'MPFClaimed': f"${round(total_duty_paid * 0.01, 2):,.2f}",
+        'drawbacksection': '1313(j)(1)',
+        'acclerated': '/Yes',  # Checkbox for accelerated payment
+        'manual': '/Yes',      # Manual filing checkbox
+        'yes14': '/Yes',       # Yes checkbox
+        
+        # Section 2: Import information - First entry
+        'ImportEntry1': import_entries[0].get('entry_number', '') if len(import_entries) > 0 else '',
+        'PortCode1': import_entries[0].get('port_code', '3901') if len(import_entries) > 0 else '',
+        'ImportDate1': format_date(import_entries[0].get('import_date', '')) if len(import_entries) > 0 else '',
+        'HTSUS1': hts_codes[0] if len(hts_codes) > 0 else '',
+        'Descrip1': descriptions[0] if len(descriptions) > 0 else '',
+        'Quantity1': quantities[0] if len(quantities) > 0 else '',
+        'Value1': f"${import_entries[0].get('total_value', 0):,.2f}" if len(import_entries) > 0 else '',
+        'Duty1': f"${import_entries[0].get('total_duty', 0):,.2f}" if len(import_entries) > 0 else '',
+        'Duty99_1': f"${import_entries[0].get('total_duty', 0) * 0.99:,.2f}" if len(import_entries) > 0 else '',
+        
+        # Import entry data - Additional entries
+        'ImportEntry2': import_entries[1].get('entry_number', '') if len(import_entries) > 1 else '',
+        'PortCode2': import_entries[1].get('port_code', '3901') if len(import_entries) > 1 else '',
+        'ImportDate2': format_date(import_entries[1].get('import_date', '')) if len(import_entries) > 1 else '',
+        'HTSUS2_ds_1': hts_codes[1] if len(hts_codes) > 1 else '',
+        'Descrip2': descriptions[1] if len(descriptions) > 1 else '',
+        'Quantity2_p0': quantities[1] if len(quantities) > 1 else '',
+        'Value2': f"${import_entries[1].get('total_value', 0):,.2f}" if len(import_entries) > 1 else '',
+        'Duty2': f"${import_entries[1].get('total_duty', 0):,.2f}" if len(import_entries) > 1 else '',
+        'Duty99_2': f"${import_entries[1].get('total_duty', 0) * 0.99:,.2f}" if len(import_entries) > 1 else '',
+        
+        'ImportEntry3': import_entries[2].get('entry_number', '') if len(import_entries) > 2 else '',
+        'PortCode3': import_entries[2].get('port_code', '3901') if len(import_entries) > 2 else '',
+        'ImportDate3': format_date(import_entries[2].get('import_date', '')) if len(import_entries) > 2 else '',
+        'HTSUS3_ds_2': hts_codes[2] if len(hts_codes) > 2 else '',
+        'Descrip3': descriptions[2] if len(descriptions) > 2 else '',
+        'Quantity3_p0': quantities[2] if len(quantities) > 2 else '',
+        'Value3': f"${import_entries[2].get('total_value', 0):,.2f}" if len(import_entries) > 2 else '',
+        'Duty3': f"${import_entries[2].get('total_duty', 0):,.2f}" if len(import_entries) > 2 else '',
+        'Duty99_3': f"${import_entries[2].get('total_duty', 0) * 0.99:,.2f}" if len(import_entries) > 2 else '',
+        
+        # Section 3: Delivery information
+        'CD1': 'X',  # Consumed code
+        'DateReceived1': import_dates[0] if import_dates else '',
+        'DateUsed1': format_date((datetime.datetime.now() - datetime.timedelta(days=30)).strftime('%Y-%m-%d')),
+        
+        # Section 4: Export information
+        'Date39_1': export_dates[0] if export_dates else '',
+        'ActionCode1': '2',  # Export code
+        'UniqueID1': export_docs[0].get('export_ref', 'EXP123456') if export_docs else '',
+        'NameofExporter1': company_info['name'],
+        'DescripofArticle1': export_docs[0]['items'][0]['description'] if export_docs and 'items' in export_docs[0] and export_docs[0]['items'] else '',
+        'Quantity1_p1_n7': str(export_docs[0]['items'][0]['quantity']) if export_docs and 'items' in export_docs[0] and export_docs[0]['items'] else '',
+        'Export1': export_docs[0].get('destination', 'Canada') if export_docs else '',
+        
+        # Additional export entries if available
+        'Date39_2': export_dates[1] if len(export_dates) > 1 else '',
+        'ActionCode2': '2' if len(export_docs) > 1 else '',
+        'UniqueID2': export_docs[1].get('export_ref', '') if len(export_docs) > 1 else '',
+        'NameofExporter2': company_info['name'] if len(export_docs) > 1 else '',
+        'DescripofArticle2': export_docs[1]['items'][0]['description'] if len(export_docs) > 1 and 'items' in export_docs[1] and export_docs[1]['items'] else '',
+        'Quantity2_p2': str(export_docs[1]['items'][0]['quantity']) if len(export_docs) > 1 and 'items' in export_docs[1] and export_docs[1]['items'] else '',
+        'Export2': export_docs[1].get('destination', '') if len(export_docs) > 1 else '',
+        
+        # Certification
+        'printedname': company_info.get('contact_name', 'John Trader'),
+        'Date500': current_date,
+        
+        # Section 2: HTSUS/description related to import line items
+        'description': 'Identical unused merchandise exported within 3 years of import',
+        
+        # Options and checkboxes 
+        'option1': '/Yes',  # NAFTA/USMCA checkbox
+        'corporation': '/Yes',  # Corporation type
+        
+        # Additional dates and totals
+        'Date': current_date,
+        'total_p0': f"${total_import_value:,.2f}",  # Total import value
+        'total_p1': f"${drawback_amount:,.2f}"      # Total drawback amount
+    }
+    
+    # Fill the form with our field mapping
+    for page in template.pages:
+        if page.Annots:
+            for annotation in page.Annots:
+                if annotation.Subtype == "/Widget" and hasattr(annotation, "/T") and annotation["/T"]:
+                    key = annotation["/T"][1:-1]  # Remove parentheses
+                    if key in field_mapping:
+                        # For checkboxes
+                        if annotation.get("/FT") == "/Btn" and field_mapping[key].startswith('/'):
+                            if field_mapping[key] != '/Off':
+                                annotation.update(pdfrw.PdfDict(AS=field_mapping[key], V=field_mapping[key]))
+                        else:
+                            # For text fields
+                            annotation.update(pdfrw.PdfDict(V=field_mapping[key]))
+    
+    # Save the filled form
+    output_path = f"filled_forms/cbp_form_7551_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    pdfrw.PdfWriter().write(output_path, template)
+    
+    print(f"Form filled with {len(field_mapping)} fields")
+    return output_path

@@ -1,0 +1,313 @@
+PDF has 3 pages
+Found 220 form fields:
+
+Field Type Statistics:
+/Tx: 190 fields
+/Btn: 30 fields
+
+All Form Fields:
+1. drawbacknumber (Type: /Tx, Value: )
+2. entrytypecode (Type: /Tx, Value: )
+3. portcode (Type: /Tx, Value: )
+4. suretycode (Type: /Tx, Value: )
+5. bondtype (Type: /Tx, Value: )
+6. claimantID (Type: /Tx, Value: )
+7. brokerID (Type: /Tx, Value: )
+8. DBKNumber (Type: /Tx, Value: )
+9. MPFClaimed (Type: /Tx, Value: )
+10. TotalDrawbackClaimed (Type: /Tx, Value: )
+11. PuertoRicoDrawback (Type: /Tx, Value: )
+12. IRTax (Type: /Tx, Value: )
+13. other13 (Type: /Tx, Value: )
+14. TotalDrawbackClaimed10 (Type: /Tx, Value: )
+15. TaxClaimed (Type: /Tx, Value: )
+16. abi (Type: /Btn, Value: /Off)
+17. manual (Type: /Btn, Value: /Off)
+18. yes14 (Type: /Btn, Value: /Off)
+19. acclerated (Type: /Btn, Value: /Off)
+20. wpn (Type: /Btn, Value: /Off)
+21. no14 (Type: /Btn, Value: /Off)
+22. drawbacksection (Type: /Tx, Value: )
+23. NameandAddressOfClaimant (Type: /Tx, Value: )
+24. NameandAddressofPreparer (Type: /Tx, Value: )
+25. ImportEntry1 (Type: /Tx, Value: )
+26. PortCode1 (Type: /Tx, Value: )
+27. ImportDate1 (Type: /Tx, Value: )
+28. CD1 (Type: /Tx, Value: )
+29. DateReceived1 (Type: /Tx, Value: )
+30. DateUsed1 (Type: /Tx, Value: )
+31. HTSUS1 (Type: /Tx, Value: )
+32. Descrip1 (Type: /Tx, Value: )
+33. Quantity1 (Type: /Tx, Value: )
+34. Value1 (Type: /Tx, Value: )
+35. Duty1 (Type: /Tx, Value: )
+36. Duty99_1 (Type: /Tx, Value: )
+37. ImportEntry2 (Type: /Tx, Value: )
+38. PortCode2 (Type: /Tx, Value: )
+39. ImportDate2 (Type: /Tx, Value: )
+40. CD2 (Type: /Tx, Value: )
+41. DateReceived2 (Type: /Tx, Value: )
+42. DateUsed2 (Type: /Tx, Value: )
+43. HTSUS2_ds_1 (Type: /Tx, Value: )
+44. Descrip2 (Type: /Tx, Value: )
+45. Quantity2_p0 (Type: /Tx, Value: )
+46. Value2 (Type: /Tx, Value: )
+47. Duty2 (Type: /Tx, Value: )
+48. Duty99_2 (Type: /Tx, Value: )
+49. ImportEntry3 (Type: /Tx, Value: )
+50. PortCode3 (Type: /Tx, Value: )
+51. ImportDate3 (Type: /Tx, Value: )
+52. CD3 (Type: /Tx, Value: )
+53. DateReceived3 (Type: /Tx, Value: )
+54. DateUsed3 (Type: /Tx, Value: )
+55. HTSUS3_ds_2 (Type: /Tx, Value: )
+56. Descrip3 (Type: /Tx, Value: )
+57. Quantity3_p0 (Type: /Tx, Value: )
+58. Value3 (Type: /Tx, Value: )
+59. Duty3 (Type: /Tx, Value: )
+60. Duty99_3 (Type: /Tx, Value: )
+61. ImportEntry4 (Type: /Tx, Value: )
+62. PortCode4 (Type: /Tx, Value: )
+63. ImportDate4 (Type: /Tx, Value: )
+64. CD4 (Type: /Tx, Value: )
+65. DateReceived4 (Type: /Tx, Value: )
+66. DateUsed4 (Type: /Tx, Value: )
+67. HTSUS4 (Type: /Tx, Value: )
+68. Descrip4 (Type: /Tx, Value: )
+69. Quantity4 (Type: /Tx, Value: )
+70. Value4 (Type: /Tx, Value: )
+71. Duty4 (Type: /Tx, Value: )
+72. Duty99_4 (Type: /Tx, Value: )
+73. total_p0 (Type: /Tx, Value: )
+74. reconciliation (Type: /Btn, Value: /Off)
+75. protest (Type: /Btn, Value: /Off)
+76. c520 (Type: /Btn, Value: /Off)
+77. d520 (Type: /Btn, Value: /Off)
+78. Date (Type: /Tx, Value: )
+79. drawbacknumber2 (Type: /Tx, Value: )
+80. claimantID2 (Type: /Tx, Value: )
+81. ImportEntry1_p1_n7 (Type: /Tx, Value: )
+82. PortCode1_p1_n7 (Type: /Tx, Value: )
+83. ImportDate1_p1_n7 (Type: /Tx, Value: )
+84. CD1_p1_n7 (Type: /Tx, Value: )
+85. DateReceived1_p1_n7 (Type: /Tx, Value: )
+86. DateUsed1_p1_n7 (Type: /Tx, Value: )
+87. HTSUS1_p1_n7 (Type: /Tx, Value: )
+88. Descrip1_p1_n7 (Type: /Tx, Value: )
+89. Quantity1_p1_n7 (Type: /Tx, Value: )
+90. Value1_p1_n7 (Type: /Tx, Value: )
+91. Duty1_p1_n7 (Type: /Tx, Value: )
+92. Duty99_1_p1_n1 (Type: /Tx, Value: )
+93. ImportEntry1_p1_n1 (Type: /Tx, Value: )
+94. PortCode1_p1_n6 (Type: /Tx, Value: )
+95. ImportDate1_p1_n6 (Type: /Tx, Value: )
+96. CD1_p1_n6 (Type: /Tx, Value: )
+97. DateReceived1_p1_n6 (Type: /Tx, Value: )
+98. DateUsed1_p1_n6 (Type: /Tx, Value: )
+99. HTSUS1_p1_n6 (Type: /Tx, Value: )
+100. Descrip1_p1_n6 (Type: /Tx, Value: )
+101. Quantity1_p1_n6 (Type: /Tx, Value: )
+102. Value1_p1_n6 (Type: /Tx, Value: )
+103. Duty1_p1_n6 (Type: /Tx, Value: )
+104. Duty99_1_p1_n7 (Type: /Tx, Value: )
+105. ImportEntry1_p1_n6 (Type: /Tx, Value: )
+106. PortCode1_p1_n5 (Type: /Tx, Value: )
+107. ImportDate1_p1_n5 (Type: /Tx, Value: )
+108. CD1_p1_n5 (Type: /Tx, Value: )
+109. DateReceived1_p1_n5 (Type: /Tx, Value: )
+110. DateUsed1_p1_n5 (Type: /Tx, Value: )
+111. HTSUS1_p1_n5 (Type: /Tx, Value: )
+112. Descrip1_p1_n5 (Type: /Tx, Value: )
+113. Quantity1_p1_n5 (Type: /Tx, Value: )
+114. Value1_p1_n5 (Type: /Tx, Value: )
+115. Duty1_p1_n5 (Type: /Tx, Value: )
+116. Duty99_1_p1_n2 (Type: /Tx, Value: )
+117. ImportEntry1_p1_n2 (Type: /Tx, Value: )
+118. PortCode1_p1_n4 (Type: /Tx, Value: )
+119. ImportDate1_p1_n4 (Type: /Tx, Value: )
+120. CD1_p1_n4 (Type: /Tx, Value: )
+121. DateReceived1_p1_n4 (Type: /Tx, Value: )
+122. DateUsed1_p1_n4 (Type: /Tx, Value: )
+123. HTSUS1_p1_n4 (Type: /Tx, Value: )
+124. Descrip1_p1_n4 (Type: /Tx, Value: )
+125. Quantity1_p1_n4 (Type: /Tx, Value: )
+126. Value1_p1_n4 (Type: /Tx, Value: )
+127. Duty1_p1_n4 (Type: /Tx, Value: )
+128. Duty99_1_p1_n6 (Type: /Tx, Value: )
+129. ImportEntry1_p1_n5 (Type: /Tx, Value: )
+130. PortCode1_p1_n3 (Type: /Tx, Value: )
+131. ImportDate1_p1_n3 (Type: /Tx, Value: )
+132. CD1_p1_n3 (Type: /Tx, Value: )
+133. DateReceived1_p1_n3 (Type: /Tx, Value: )
+134. DateUsed1_p1_n3 (Type: /Tx, Value: )
+135. HTSUS1_p1_n3 (Type: /Tx, Value: )
+136. Descrip1_p1_n3 (Type: /Tx, Value: )
+137. Quantity1_p1_n3 (Type: /Tx, Value: )
+138. Value1_p1_n3 (Type: /Tx, Value: )
+139. Duty1_p1_n3 (Type: /Tx, Value: )
+140. Duty99_1_p1_n3 (Type: /Tx, Value: )
+141. ImportEntry1_p1_n3 (Type: /Tx, Value: )
+142. PortCode1_p1_n2 (Type: /Tx, Value: )
+143. ImportDate1_p1_n2 (Type: /Tx, Value: )
+144. CD1_p1_n2 (Type: /Tx, Value: )
+145. DateReceived1_p1_n2 (Type: /Tx, Value: )
+146. DateUsed1_p1_n2 (Type: /Tx, Value: )
+147. HTSUS1_p1_n2 (Type: /Tx, Value: )
+148. Descrip1_p1_n2 (Type: /Tx, Value: )
+149. Quantity1_p1_n2 (Type: /Tx, Value: )
+150. Value1_p1_n2 (Type: /Tx, Value: )
+151. Duty1_p1_n2 (Type: /Tx, Value: )
+152. Duty99_1_p1_n5 (Type: /Tx, Value: )
+153. ImportEntry1_p1_n4 (Type: /Tx, Value: )
+154. PortCode1_p1_n1 (Type: /Tx, Value: )
+155. ImportDate1_p1_n1 (Type: /Tx, Value: )
+156. CD1_p1_n1 (Type: /Tx, Value: )
+157. DateReceived1_p1_n1 (Type: /Tx, Value: )
+158. DateUsed1_p1_n1 (Type: /Tx, Value: )
+159. HTSUS1_p1_n1 (Type: /Tx, Value: )
+160. Descrip1_p1_n1 (Type: /Tx, Value: )
+161. Quantity1_p1_n1 (Type: /Tx, Value: )
+162. Value1_p1_n1 (Type: /Tx, Value: )
+163. Duty1_p1_n1 (Type: /Tx, Value: )
+164. Duty99_1_p1_n4 (Type: /Tx, Value: )
+165. total_p1 (Type: /Tx, Value: )
+166. PageNo (Type: /Tx, Value: )
+167. PageNo2 (Type: /Tx, Value: )
+168. quantitymerchandise (Type: /Tx, Value: )
+169. DateofManufacture (Type: /Tx, Value: )
+170. description (Type: /Tx, Value: )
+171. quantitymeasure (Type: /Tx, Value: )
+172. factorylocation (Type: /Tx, Value: )
+173. Date3 (Type: /Tx, Value: )
+174. Date4 (Type: /Tx, Value: )
+175. merchandiseprocessingfee1 (Type: /Btn, Value: /Off)
+176. merchandiseprocessingfee2 (Type: /Btn, Value: /Off)
+177. relativevalue (Type: /Btn, Value: /Off)
+178. petroleum (Type: /Btn, Value: /Off)
+179. domestictax (Type: /Btn, Value: /Off)
+180. piecegoods (Type: /Btn, Value: /Off)
+181. wastecalculation (Type: /Btn, Value: /Off)
+182. recycled (Type: /Btn, Value: /Off)
+183. merchandiseprocessingfee3 (Type: /Btn, Value: /Off)
+184. Date39_1 (Type: /Tx, Value: )
+185. ActionCode1 (Type: /Tx, Value: )
+186. UniqueID1 (Type: /Tx, Value: )
+187. NameofExporter1 (Type: /Tx, Value: )
+188. DescripofArticle1 (Type: /Tx, Value: )
+189. Export1 (Type: /Tx, Value: )
+190. Date39_2 (Type: /Tx, Value: )
+191. ActionCode2 (Type: /Tx, Value: )
+192. UniqueID2 (Type: /Tx, Value: )
+193. NameofExporter2 (Type: /Tx, Value: )
+194. DescripofArticle2 (Type: /Tx, Value: )
+195. Quantity2_p2 (Type: /Tx, Value: )
+196. Export2 (Type: /Tx, Value: )
+197. HTSUS2_p2 (Type: /Tx, Value: )
+198. Date39_3 (Type: /Tx, Value: )
+199. ActionCode3 (Type: /Tx, Value: )
+200. UniqueID3 (Type: /Tx, Value: )
+201. NameofExporter3 (Type: /Tx, Value: )
+202. DescripofArticle3 (Type: /Tx, Value: )
+203. Quantity3_p2 (Type: /Tx, Value: )
+204. Export3 (Type: /Tx, Value: )
+205. HTSUS3_p2 (Type: /Tx, Value: )
+206. option1 (Type: /Btn, Value: /Off)
+207. allowableoperations (Type: /Tx, Value: )
+208. option2 (Type: /Btn, Value: /Off)
+209. allowableoperation2 (Type: /Tx, Value: )
+210. option3 (Type: /Btn, Value: /Off)
+211. notconform (Type: /Btn, Value: /Off)
+212. defective (Type: /Btn, Value: /Off)
+213. shipped (Type: /Btn, Value: /Off)
+214. option4 (Type: /Btn, Value: /Off)
+215. opton5 (Type: /Btn, Value: /Off)
+216. attorney (Type: /Btn, Value: /Off)
+217. corporation (Type: /Btn, Value: /Off)
+218. broker (Type: /Btn, Value: /Off)
+219. printedname (Type: /Tx, Value: )
+220. Date500 (Type: /Tx, Value: )
+
+Detailed Checkbox Analysis:
+
+Checkbox: abi
+  Value: /Off
+  Appearance State: None
+  Has appearance dictionary: No
+
+Checkbox: manual
+  Value: /Off
+  Appearance State: None
+  Has appearance dictionary: No
+
+Checkbox: yes14
+  Value: /Off
+  Appearance State: None
+  Has appearance dictionary: No
+
+Checkbox: acclerated
+  Value: /Off
+  Appearance State: None
+  Has appearance dictionary: No
+
+Checkbox: wpn
+  Value: /Off
+  Appearance State: None
+  Has appearance dictionary: No
+
+Checkbox: no14
+  Value: /Off
+  Appearance State: None
+  Has appearance dictionary: No
+
+Checkbox: reconciliation
+  Value: /Off
+  Appearance State: None
+  Has appearance dictionary: No
+
+Checkbox: protest
+  Value: /Off
+  Appearance State: None
+  Has appearance dictionary: No
+
+Checkbox: c520
+  Value: /Off
+  Appearance State: None
+  Has appearance dictionary: No
+
+Checkbox: d520
+  Value: /Off
+  Appearance State: None
+  Has appearance dictionary: No
+
+Checking for Widget annotations:
+  Button found on page 1
+  Button found on page 1
+  Button found on page 1
+  Button found on page 1
+  Button found on page 1
+  Button found on page 1
+  Button found on page 1
+  Button found on page 1
+  Button found on page 1
+  Button found on page 1
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+  Button found on page 3
+Total annotations: 222, Buttons: 30

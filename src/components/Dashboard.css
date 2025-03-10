@@ -1,0 +1,55 @@
+.dashboard-container {
+  padding-bottom: 2rem;
+}
+
+.dashboard-container h2 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-container .card {
+  border-radius: 0.5rem;
+  transition: transform 0.2s;
+}
+
+.dashboard-container .shadow-sm:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.dashboard-container .display-4 {
+  font-size: 2.5rem;
+  font-weight: 500;
+}
+
+.dashboard-container th {
+  background-color: #f8f9fa;
+}
+
+.dashboard-container th[role="button"],
+.dashboard-container th[style*="cursor: pointer"] {
+  user-select: none;
+}
+
+.dashboard-container th:hover {
+  background-color: #f1f1f1;
+}
+
+.dashboard-container .table td {
+  vertical-align: middle;
+}
+
+.dashboard-container .badge {
+  font-size: 0.85rem;
+  padding: 0.4em 0.7em;
+}
+
+.dashboard-container .dropdown-menu {
+  min-width: 8rem;
+}
+
+@media (max-width: 768px) {
+  .dashboard-container .display-4 {
+    font-size: 2rem;
+  }
+} 

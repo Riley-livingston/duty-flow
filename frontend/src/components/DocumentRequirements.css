@@ -2,25 +2,38 @@
   padding: 20px;
   background-color: #f8f9fa;
   border-radius: 8px;
+  margin-bottom: 30px;
 }
 
 .requirements-header {
   margin-bottom: 25px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  text-align: center;
 }
 
 .requirements-header h2 {
-  color: #333;
+  color: #2c3e50;
+  font-size: 24px;
   margin-bottom: 10px;
 }
 
 .info-text {
-  color: #666;
-  font-size: 16px;
-  line-height: 1.5;
+  color: #6c757d;
   margin-bottom: 15px;
+}
+
+.guide-download-button {
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.guide-download-button:hover {
+  background-color: #138496;
 }
 
 .document-list {
@@ -31,64 +44,188 @@
 
 .document-card {
   background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+  position: relative;
+  border-left: 4px solid #f0f0f0;
+}
+
+.document-card.provided {
+  border-left-color: #28a745;
+}
+
+.document-card.missing {
+  border-left-color: #dc3545;
 }
 
 .document-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
-.document-card h3 {
-  color: #4a90e2;
-  margin-top: 0;
-  margin-bottom: 10px;
+.document-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.document-header h3 {
+  color: #343a40;
+  margin: 0;
   font-size: 18px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.status-badge.provided {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.missing {
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 .document-description {
-  color: #555;
-  margin-bottom: 15px;
+  color: #6c757d;
   font-size: 14px;
-}
-
-.document-examples, .document-tips {
   margin-bottom: 15px;
+  line-height: 1.5;
 }
 
-.document-examples h4, .document-tips h4 {
-  color: #333;
+.document-examples h4,
+.document-tips h4 {
   font-size: 16px;
-  margin-bottom: 8px;
+  color: #495057;
+  margin-bottom: 10px;
 }
 
-.document-examples ul, .document-tips ul {
-  margin: 0;
+.document-examples ul,
+.document-tips ul {
   padding-left: 20px;
+  margin-bottom: 0;
 }
 
-.document-examples li, .document-tips li {
-  color: #555;
-  margin-bottom: 5px;
+.document-examples li,
+.document-tips li {
+  color: #495057;
   font-size: 14px;
+  margin-bottom: 5px;
 }
 
-.guide-download-button {
-  background-color: #4a90e2;
+.document-actions {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.action-button {
+  display: inline-block;
+  padding: 8px 16px;
+  text-align: center;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.action-button.upload {
+  background-color: #007bff;
+  color: white;
+}
+
+.action-button.upload:hover {
+  background-color: #0069d9;
+}
+
+.action-button.generate {
+  background-color: #28a745;
   color: white;
   border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s;
-  align-self: flex-start;
 }
 
-.guide-download-button:hover {
-  background-color: #3a7bc8;
+.action-button.generate:hover {
+  background-color: #218838;
+}
+
+.document-info {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 15px 0;
+}
+
+.document-info p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #495057;
+}
+
+.status-summary {
+  background-color: white;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.status-summary h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #343a40;
+}
+
+.status-progress {
+  height: 10px;
+  background-color: #e9ecef;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #28a745;
+  transition: width 0.3s ease;
+}
+
+span.complete {
+  color: #28a745;
+  font-weight: 600;
+}
+
+span.incomplete {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.loading {
+  text-align: center;
+  padding: 30px;
+  color: #6c757d;
+}
+
+.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 15px;
+  border-radius: 4px;
+  text-align: center;
+  margin-bottom: 20px;
 } 

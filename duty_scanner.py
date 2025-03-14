@@ -23,8 +23,22 @@ def scan_transactions(import_file, export_file=None):
         if col not in imports_df.columns:
             raise ValueError(f"Missing required column: {col}")
     
-    # Convert date string to datetime
-    imports_df['import_date'] = pd.to_datetime(imports_df['import_date'])
+    # More robust date parsing for import_date - try different formats
+    try:
+        # Try the standard format first
+        imports_df['import_date'] = pd.to_datetime(imports_df['import_date'])
+    except:
+        # If that fails, try common alternative formats
+        try:
+            # Try MM/DD/YYYY format
+            imports_df['import_date'] = pd.to_datetime(imports_df['import_date'], format='%m/%d/%Y')
+        except:
+            try:
+                # Try DD/MM/YYYY format
+                imports_df['import_date'] = pd.to_datetime(imports_df['import_date'], format='%d/%m/%Y')
+            except Exception as e:
+                # If all parsing attempts fail, raise a helpful error
+                raise ValueError(f"Failed to parse import_date. Please ensure dates are in YYYY-MM-DD, MM/DD/YYYY, or DD/MM/YYYY format. Error: {str(e)}")
     
     # Calculate eligibility based on import date
     # For duty drawback, imports are typically eligible if they occurred within the last 5 years
@@ -63,8 +77,38 @@ def scan_transactions_with_exports(import_file, export_file):
         if col not in exports_df.columns:
             raise ValueError(f"Missing required column in export file: {col}")
     
-    # Convert date string to datetime
-    exports_df['export_date'] = pd.to_datetime(exports_df['export_date'])
+    # More robust date parsing - try different formats
+    try:
+        # Try the standard format first
+        exports_df['export_date'] = pd.to_datetime(exports_df['export_date'])
+    except:
+        # If that fails, try common alternative formats
+        try:
+            # Try MM/DD/YYYY format
+            exports_df['export_date'] = pd.to_datetime(exports_df['export_date'], format='%m/%d/%Y')
+        except:
+            try:
+                # Try DD/MM/YYYY format
+                exports_df['export_date'] = pd.to_datetime(exports_df['export_date'], format='%d/%m/%Y')
+            except Exception as e:
+                # If all parsing attempts fail, raise a helpful error
+                raise ValueError(f"Failed to parse export_date. Please ensure dates are in YYYY-MM-DD, MM/DD/YYYY, or DD/MM/YYYY format. Error: {str(e)}")
+    
+    # Also ensure import dates are in datetime format
+    if not pd.api.types.is_datetime64_dtype(imports_df['import_date']):
+        try:
+            # Try to convert if not already in datetime format
+            imports_df['import_date'] = pd.to_datetime(imports_df['import_date'])
+        except Exception as e:
+            # If parsing fails, raise a helpful error
+            raise ValueError(f"Failed to parse import_date. Please ensure dates are in a standard format. Error: {str(e)}")
+    
+    # Print some debug info
+    print(f"Import date range: {imports_df['import_date'].min()} to {imports_df['import_date'].max()}")
+    print(f"Export date range: {exports_df['export_date'].min()} to {exports_df['export_date'].max()}")
+    print(f"Import products: {len(imports_df['product_id'].unique())} unique")
+    print(f"Export products: {len(exports_df['product_id'].unique())} unique")
+    print(f"Product overlap: {len(set(imports_df['product_id']).intersection(set(exports_df['product_id'])))} products")
     
     # Initialize match columns
     imports_df['has_export_match'] = False

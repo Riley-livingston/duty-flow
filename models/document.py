@@ -1,7 +1,31 @@
 import os
+import tempfile
+import shutil
 from datetime import datetime
 from models.db import db
 from werkzeug.utils import secure_filename
+import atexit
+
+# Use the uploads directory for temporary storage
+UPLOADS_FOLDER = 'uploads'
+
+# Clean up function to remove files from uploads directory on exit
+@atexit.register
+def cleanup_uploads():
+    """Remove all files from uploads directory when application exits"""
+    try:
+        # Only cleanup if the folder exists
+        if os.path.exists(UPLOADS_FOLDER):
+            for filename in os.listdir(UPLOADS_FOLDER):
+                file_path = os.path.join(UPLOADS_FOLDER, filename)
+                if os.path.isfile(file_path):
+                    try:
+                        os.remove(file_path)
+                    except Exception as e:
+                        print(f"Error removing file {file_path}: {str(e)}")
+            print(f"Cleaned up files in {UPLOADS_FOLDER}")
+    except Exception as e:
+        print(f"Error in cleanup_uploads: {str(e)}")
 
 class Document(db.Model):
     """Model for storing document information"""
@@ -49,8 +73,7 @@ class Document(db.Model):
         - The created Document instance
         """
         # Create storage directory if it doesn't exist
-        DOCUMENTS_FOLDER = os.path.join(os.getcwd(), 'documents')
-        os.makedirs(DOCUMENTS_FOLDER, exist_ok=True)
+        os.makedirs(UPLOADS_FOLDER, exist_ok=True)
         
         # Secure the filename and generate a unique name
         original_filename = uploaded_file.filename
@@ -58,17 +81,19 @@ class Document(db.Model):
         base, ext = os.path.splitext(filename)
         unique_filename = f"{base}_{datetime.now().strftime('%Y%m%d%H%M%S')}{ext}"
         
+        # Store only the relative path in the database
+        relative_path = os.path.join(UPLOADS_FOLDER, unique_filename)
+        
         # Save the file
-        file_path = os.path.join(DOCUMENTS_FOLDER, unique_filename)
-        uploaded_file.save(file_path)
+        uploaded_file.save(relative_path)
         
         # Create the document record
         document = Document(
             filename=unique_filename,
             original_filename=original_filename,
             document_type=document_type,
-            file_path=file_path,
-            file_size=os.path.getsize(file_path),
+            file_path=relative_path,
+            file_size=os.path.getsize(relative_path),
             mime_type=uploaded_file.content_type,
             import_transaction_id=import_id,
             export_transaction_id=export_id,

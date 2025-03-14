@@ -3,6 +3,7 @@ import './App.css';
 import FileUpload from './components/FileUpload';
 import ResultsTable from './components/ResultsTable';
 import CompanyForm from './components/CompanyForm';
+import DrawbackWizard from './components/DrawbackWizard';
 
 function App() {
   const [results, setResults] = useState(null);
@@ -10,6 +11,7 @@ function App() {
   const [error, setError] = useState(null);
   const [showCompanyForm, setShowCompanyForm] = useState(false);
   const [generatedPdfPath, setGeneratedPdfPath] = useState(null);
+  const [useWizardFlow, setUseWizardFlow] = useState(true); // Set to true to use the new wizard by default
 
   const handleFilesProcessed = (data) => {
     setResults(data);
@@ -37,97 +39,122 @@ function App() {
     }
   };
 
+  // Use wizard or legacy flow
+  const toggleFlowMode = () => {
+    setUseWizardFlow(!useWizardFlow);
+    // Reset state when switching modes
+    setResults(null);
+    setLoading(false);
+    setError(null);
+    setShowCompanyForm(false);
+    setGeneratedPdfPath(null);
+  };
+
   return (
     <div className="App">
       <header className="App-header">
         <h1>DutyFlow</h1>
         <p>Duty Drawback Eligibility Scanner</p>
+        <button 
+          className="flow-toggle-button"
+          onClick={toggleFlowMode}
+        >
+          {useWizardFlow ? 'Switch to Legacy Mode' : 'Switch to Guided Mode'}
+        </button>
       </header>
       
       <main className="App-main">
-        {!showCompanyForm && !generatedPdfPath && (
-          <FileUpload 
-            onStartProcessing={() => setLoading(true)}
-            onProcessed={handleFilesProcessed}
-            onError={(err) => {
-              setError(err);
-              setLoading(false);
-            }}
-          />
-        )}
-        
-        {loading && (
-          <div className="loading-indicator">
-            <p>Processing your files...</p>
-          </div>
-        )}
-        
-        {error && (
-          <div className="error-message">
-            <h3>Error</h3>
-            <p>{error}</p>
-          </div>
-        )}
-        
-        {results && !loading && !showCompanyForm && !generatedPdfPath && (
-          <div className="results-container">
-            <h2>Eligible Refunds</h2>
-            <div className="summary-box">
-              <h3>Summary</h3>
-              <p>Total Eligible Transactions: {results.count}</p>
-              <p>Total Potential Refund: ${results.totalRefund.toFixed(2)}</p>
-              <div className="action-buttons">
-                <button 
-                  className="generate-form-button"
-                  onClick={handleGenerateForm}
-                >
-                  Generate CBP Form 7551
-                </button>
-                <button 
-                  className="download-csv-button"
-                  onClick={handleDownloadCsv}
-                >
-                  Download CSV
-                </button>
+        {useWizardFlow ? (
+          // New wizard-based flow
+          <DrawbackWizard />
+        ) : (
+          // Legacy flow
+          <>
+            {!showCompanyForm && !generatedPdfPath && (
+              <FileUpload 
+                onStartProcessing={() => setLoading(true)}
+                onProcessed={handleFilesProcessed}
+                onError={(err) => {
+                  setError(err);
+                  setLoading(false);
+                }}
+              />
+            )}
+            
+            {loading && (
+              <div className="loading-indicator">
+                <p>Processing your files...</p>
               </div>
-            </div>
-            <ResultsTable data={results.transactions} />
-          </div>
-        )}
-        
-        {showCompanyForm && (
-          <CompanyForm 
-            resultsFile={results.resultsFile}
-            onFormGenerated={handleFormGenerated}
-            onError={(err) => {
-              setError(err);
-              setShowCompanyForm(false);
-            }}
-          />
-        )}
-        
-        {generatedPdfPath && (
-          <div className="form-generated-container">
-            <h2>CBP Form 7551 Generated Successfully</h2>
-            <p>Your form has been generated and is ready for download.</p>
-            <div className="action-buttons">
-              <button 
-                className="download-pdf-button"
-                onClick={handleDownloadPdf}
-              >
-                Download PDF
-              </button>
-              <button 
-                className="back-button"
-                onClick={() => {
-                  setGeneratedPdfPath(null);
+            )}
+            
+            {error && (
+              <div className="error-message">
+                <h3>Error</h3>
+                <p>{error}</p>
+              </div>
+            )}
+            
+            {results && !loading && !showCompanyForm && !generatedPdfPath && (
+              <div className="results-container">
+                <h2>Eligible Refunds</h2>
+                <div className="summary-box">
+                  <h3>Summary</h3>
+                  <p>Total Eligible Transactions: {results.count}</p>
+                  <p>Total Potential Refund: ${results.totalRefund.toFixed(2)}</p>
+                  <div className="action-buttons">
+                    <button 
+                      className="generate-form-button"
+                      onClick={handleGenerateForm}
+                    >
+                      Generate CBP Form 7551
+                    </button>
+                    <button 
+                      className="download-csv-button"
+                      onClick={handleDownloadCsv}
+                    >
+                      Download CSV
+                    </button>
+                  </div>
+                </div>
+                <ResultsTable data={results.transactions} />
+              </div>
+            )}
+            
+            {showCompanyForm && (
+              <CompanyForm 
+                resultsFile={results.resultsFile}
+                onFormGenerated={handleFormGenerated}
+                onError={(err) => {
+                  setError(err);
                   setShowCompanyForm(false);
                 }}
-              >
-                Back to Results
-              </button>
-            </div>
-          </div>
+              />
+            )}
+            
+            {generatedPdfPath && (
+              <div className="form-generated-container">
+                <h2>CBP Form 7551 Generated Successfully</h2>
+                <p>Your form has been generated and is ready for download.</p>
+                <div className="action-buttons">
+                  <button 
+                    className="download-pdf-button"
+                    onClick={handleDownloadPdf}
+                  >
+                    Download PDF
+                  </button>
+                  <button 
+                    className="back-button"
+                    onClick={() => {
+                      setGeneratedPdfPath(null);
+                      setShowCompanyForm(false);
+                    }}
+                  >
+                    Back to Results
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </main>
       

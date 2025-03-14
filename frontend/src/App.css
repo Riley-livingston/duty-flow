@@ -1,37 +1,134 @@
 .App {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
 }
 
 .App-header {
-  background-color: #2c3e50;
+  background-color: #008B8B; /* Teal main header color */
+  background: linear-gradient(135deg, #008B8B, #006666); /* Gradient effect for modern look */
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   color: white;
   padding: 20px;
-  text-align: center;
-  margin-bottom: 20px;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 139, 139, 0.2); /* Subtle shadow */
+  border-bottom: 1px solid rgba(255,255,255,0.1); /* Subtle border */
 }
 
 .App-header h1 {
   margin: 0;
   font-size: 2.5rem;
+  letter-spacing: 0.5px; /* Improved typography */
+  font-weight: 600;
 }
 
 .App-header p {
-  margin: 5px 0 0;
+  margin: 10px 0 0;
   font-size: 1.2rem;
-  opacity: 0.8;
+  opacity: 0.9; /* Subtle transparency */
+  font-weight: 300; /* Lighter weight */
+}
+
+/* Navigation styles */
+.App-nav {
+  background-color: #007070; /* Slightly darker teal */
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 2px 6px rgba(0, 112, 112, 0.2);
+}
+
+.App-nav ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.App-nav li {
+  margin: 0;
+  padding: 0;
+}
+
+.App-nav a {
+  display: block;
+  color: white;
+  text-decoration: none;
+  padding: 15px 20px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  position: relative;
+}
+
+.App-nav a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.App-nav a.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  font-weight: 600;
+}
+
+/* Add underline animation for active nav items */
+.App-nav a.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.6);
 }
 
 .App-main {
-  padding: 0 20px;
+  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  background-color: #fbfbfb; /* Subtle off-white background */
 }
 
 .App-footer {
-  text-align: center;
-  padding: 20px;
   margin-top: 40px;
-  color: #666;
+  padding: 20px;
+  background-color: #f0f7f7; /* Very light teal */
+  color: #006060;
   font-size: 0.9rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #e0f0f0;
+}
+
+/* Error message styles kept for components that might use them */
+.error-message {
+  background-color: #ffebee;
+  border: 1px solid #ef5350;
+  padding: 15px;
+  border-radius: 4px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.error-message h3 {
+  color: #d32f2f;
+  margin-top: 0;
+}
+
+@media (max-width: 768px) {
+  .App-header h1 {
+    font-size: 2rem;
+  }
+  
+  .App-header p {
+    font-size: 1rem;
+  }
+  
+  .App-nav ul {
+    flex-direction: column;
+  }
+  
+  .App-nav a {
+    padding: 10px 15px;
+  }
 }

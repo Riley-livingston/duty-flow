@@ -106,7 +106,8 @@ def generate_sample_export_data(import_file, export_ratio=0.7, output_file="uplo
     
     # Select a subset of imports to create matching exports
     sample_size = int(len(imports_df) * export_ratio)
-    selected_imports = imports_df.sample(n=sample_size)
+    sample_size = min(sample_size, len(imports_df))  # Make sure we don't exceed dataframe length
+    selected_imports = imports_df.sample(n=sample_size) if sample_size > 0 else imports_df
     
     exports = []
     
@@ -116,16 +117,17 @@ def generate_sample_export_data(import_file, export_ratio=0.7, output_file="uplo
         max_days = min(4*365, (datetime.now() - import_date).days)
         
         if max_days > 0:
-            days_later = np.random.randint(1, max_days)
+            days_later = np.random.randint(1, max_days + 1)
             export_date = import_date + timedelta(days=days_later)
             
             # Sometimes export full quantity, sometimes partial
             export_quantity = import_row['quantity']
-            if np.random.random() > 0.5:
+            if np.random.random() > 0.5 and export_quantity > 1:
+                # Only do partial if quantity > 1
                 export_quantity = np.random.randint(1, export_quantity)
             
             exports.append({
-                'product_id': import_row['product_id'],
+                'product_id': import_row['product_id'],  # Using product_id as required by the application
                 'export_date': export_date.strftime('%Y-%m-%d'),
                 'quantity': export_quantity,
                 'destination': np.random.choice(['Canada', 'Mexico', 'EU', 'Asia', 'South America']),
@@ -133,7 +135,7 @@ def generate_sample_export_data(import_file, export_ratio=0.7, output_file="uplo
             })
     
     # Add some random exports that don't match imports
-    for _ in range(int(sample_size * 0.2)):
+    for _ in range(max(1, int(sample_size * 0.2))):
         exports.append({
             'product_id': f"PROD-{np.random.randint(1000, 9999)}",
             'export_date': (datetime.now() - timedelta(days=np.random.randint(1, 365*3))).strftime('%Y-%m-%d'),
@@ -148,56 +150,53 @@ def generate_sample_export_data(import_file, export_ratio=0.7, output_file="uplo
     return output_file
 
 def generate_templates():
-    """Generate simple template files with a few rows of example data"""
+    """Generate template CSV files for users to download"""
+    # Import template
+    import_template = pd.DataFrame({
+        'entry_number': ['E00001', 'E00001', 'E00002'],
+        'product_id': ['PROD-1001', 'PROD-1002', 'PROD-1003'],
+        'import_date': ['2023-01-15', '2023-01-15', '2023-02-20'],
+        'quantity': [100, 200, 150],
+        'duty_paid': [500.00, 750.00, 625.50]
+    })
+    import_template.to_csv('templates/import_template.csv', index=False)
     
-    # Create sample import template
-    import_columns = ["entry_number", "product_id", "import_date", "quantity", "duty_paid"]
-    import_sample = pd.DataFrame([
-        ["E00001", "ELEC-1234", "2023-01-15", 10, 500.00],
-        ["E00001", "TEXT-5678", "2023-01-15", 20, 300.00],
-        ["E00002", "HOME-9012", "2022-11-20", 5, 150.00],
-    ], columns=import_columns)
+    # Export template
+    export_template = pd.DataFrame({
+        'export_reference': ['EX-10001', 'EX-10002', 'EX-10003'],
+        'product_id': ['PROD-1001', 'PROD-1002', 'PROD-1003'],
+        'export_date': ['2023-05-10', '2023-06-15', '2023-08-01'],
+        'quantity': [80, 180, 150],
+        'destination': ['Canada', 'Mexico', 'EU']
+    })
+    export_template.to_csv('templates/export_template.csv', index=False)
     
-    import_template_path = "templates/import_template.csv"
-    import_sample.to_csv(import_template_path, index=False)
-    print(f"Created import template: {import_template_path}")
-    
-    # Create sample export template
-    export_columns = ["export_reference", "product_id", "export_date", "quantity", "destination"]
-    export_sample = pd.DataFrame([
-        ["EX-12345", "ELEC-1234", "2023-03-20", 8, "Canada"],
-        ["EX-67890", "TEXT-5678", "2023-02-10", 15, "Mexico"],
-        ["EX-24680", "HOME-9012", "2023-01-05", 3, "EU"],
-    ], columns=export_columns)
-    
-    export_template_path = "templates/export_template.csv"
-    export_sample.to_csv(export_template_path, index=False)
-    print(f"Created export template: {export_template_path}")
-    
-    return import_template_path, export_template_path
+    print("Generated template files in 'templates' directory")
 
 def main():
-    """Main function to generate all sample data files"""
-    print("DutyFlow Sample Data Generator")
-    print("=============================\n")
+    """Generate all sample and template files"""
+    print("Generating sample data for DutyFlow...")
     
-    print("1. Generating sample data for analysis...")
-    import_file = generate_sample_imports(small_business=True)
-    export_file = generate_sample_export_data(import_file)
+    # Generate templates
+    generate_templates()
     
-    print("\n2. Generating template files...")
-    import_template, export_template = generate_templates()
+    # Generate SMB data
+    import_file = generate_sample_imports(num_records=30, small_business=True)
+    generate_sample_export_data(import_file)
     
-    print("\nSample data generation complete!")
-    print("\nFiles for upload:")
-    print(f"- Import data: {import_file}")
-    print(f"- Export data: {export_file}")
+    # Generate enterprise data
+    import_file_large = generate_sample_imports(
+        num_records=100, 
+        small_business=False,
+        output_file="uploads/enterprise_imports.csv"
+    )
+    generate_sample_export_data(
+        import_file_large,
+        output_file="uploads/enterprise_exports.csv"
+    )
     
-    print("\nTemplate files:")
-    print(f"- Import template: {import_template}")
-    print(f"- Export template: {export_template}")
-    
-    print("\nYou can now upload these files in the DutyFlow application.")
+    print("\nAll data files generated successfully!")
+    print("You can find the files in the 'uploads' and 'templates' directories.")
 
 if __name__ == "__main__":
     main() 

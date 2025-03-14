@@ -1,4 +1,0 @@
-product_code,product_description,quantity,unit_price,duty_paid,entry_number,import_date
-ABC123,Widget A,100,10.5,31.5,IMP-12345678,2023-01-15
-DEF456,Widget B,200,8.75,52.5,IMP-12345678,2023-01-15
-GHI789,Widget C,150,12.25,55.13,IMP-12345678,2023-01-15

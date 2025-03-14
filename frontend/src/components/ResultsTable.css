@@ -1,0 +1,128 @@
+.results-table {
+  margin-top: 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.results-table h3 {
+  color: #2e7d32;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th, table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+}
+
+table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.matched-row {
+  background-color: #e8f5e9;
+}
+
+.matched-row:hover {
+  background-color: #d7edd9;
+}
+
+.eligible-row {
+  background-color: #f1f8e9;
+}
+
+.eligible-row:hover {
+  background-color: #e7f3dc;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.status-badge.eligible {
+  background-color: #c8e6c9;
+  color: #2e7d32;
+}
+
+.status-badge.ineligible {
+  background-color: #ffcdd2;
+  color: #c62828;
+}
+
+.status-badge.matched {
+  background-color: #b3e5fc;
+  color: #0277bd;
+}
+
+.status-badge.unmatched {
+  background-color: #f5f5f5;
+  color: #757575;
+}
+
+.no-results {
+  text-align: center;
+  padding: 30px;
+  color: #666;
+  font-style: italic;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.legend-color.matched {
+  background-color: #e8f5e9;
+  border: 1px solid #a5d6a7;
+}
+
+.legend-color.eligible {
+  background-color: #f1f8e9;
+  border: 1px solid #c5e1a5;
+}
+
+.legend-color.ineligible {
+  background-color: #fff;
+  border: 1px solid #ddd;
+} 

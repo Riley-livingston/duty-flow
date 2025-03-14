@@ -1,319 +1,199 @@
-import React, { useState } from "react";
-import axios from "axios";
-import "./ImportAnalyzer.css";
-import DocumentManager from './DocumentManager';
-import WorkflowProgress from './WorkflowProgress';
-import DocumentRequirements from './DocumentRequirements';
+import React, { useState, useEffect } from 'react';
+import './ImportAnalyzer.css';
 
-const ImportAnalyzer = () => {
-  const [importFile, setImportFile] = useState(null);
-  const [exportFile, setExportFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState(null);
+function ImportAnalyzer({ importId, exportId, onAnalysisComplete }) {
+  const [analysisData, setAnalysisData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState("upload");
-  const [workflowStep, setWorkflowStep] = useState(0);
 
-  const handleTabChange = (tabId) => {
-    setActiveTab(tabId);
-  };
+  useEffect(() => {
+    if (importId) {
+      analyzeData();
+    }
+  }, [importId, exportId]);
 
-  const handleImportFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setImportFile(e.target.files[0]);
-    }
-  };
-
-  const handleExportFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setExportFile(e.target.files[0]);
-    }
-  };
-
-  const handleAnalyze = async () => {
-    console.log("Starting analysis...");
-    
-    if (!importFile) {
-      setError("Import file is required");
-      return;
-    }
-    
-    if (!exportFile) {
-      setError("Export file is required");
-      return;
-    }
-    
-    setLoading(true);
+  const analyzeData = async () => {
+    setIsLoading(true);
     setError(null);
     
-    const formData = new FormData();
-    formData.append("import_file", importFile);
-    formData.append("export_file", exportFile);
-    
     try {
-      console.log("Sending API request...");
-      const response = await axios.post("http://localhost:5000/api/scan-with-exports", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      });
+      // Construct the API endpoint URL
+      let url = `/api/analyze?import_id=${importId}`;
+      if (exportId) {
+        url += `&export_id=${exportId}`;
+      }
       
-      console.log("Response received:", response.data);
-      setResults(response.data);
-      setLoading(false);
-      setWorkflowStep(2);
-      setActiveTab("documents");
+      const response = await fetch(url);
       
+      if (!response.ok) {
+        throw new Error(`Analysis failed with status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setAnalysisData(data);
+      
+      if (onAnalysisComplete) {
+        onAnalysisComplete(data);
+      }
     } catch (err) {
-      console.error("API Error:", err);
-      setLoading(false);
-      setError(err.response?.data?.error || "An error occurred during analysis");
+      console.error('Error analyzing data:', err);
+      setError(err.message || 'An error occurred during analysis');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    handleAnalyze();
-  };
+  if (isLoading) {
+    return (
+      <div className="import-analyzer loading">
+        <div className="loading-spinner"></div>
+        <p>Analyzing your data...</p>
+      </div>
+    );
+  }
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString();
-  };
+  if (error) {
+    return (
+      <div className="import-analyzer error">
+        <h3>Analysis Error</h3>
+        <p>{error}</p>
+        <button onClick={analyzeData} className="retry-button">Retry Analysis</button>
+      </div>
+    );
+  }
 
-  const formatCurrency = (value) => {
-    if (value === undefined || value === null) return "-";
-    return `$${parseFloat(value).toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })}`;
-  };
+  if (!analysisData) {
+    return (
+      <div className="import-analyzer empty">
+        <p>No analysis data available.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="import-analyzer">
-      <WorkflowProgress currentStep={workflowStep} />
-      
-      <div className="tab-navigation">
-        <button 
-          className={`tab-button ${activeTab === 'upload' ? 'active' : ''}`}
-          onClick={() => handleTabChange('upload')}
-        >
-          Upload Data
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'requirements' ? 'active' : ''}`}
-          onClick={() => handleTabChange('requirements')}
-        >
-          Requirements
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'documents' ? 'active' : ''} ${!results ? 'disabled' : ''}`}
-          onClick={() => results && handleTabChange('documents')}
-          title={!results ? "Complete analysis first" : ""}
-        >
-          Documents
+      <div className="analysis-summary">
+        <div className="summary-card">
+          <h3>Import Summary</h3>
+          <div className="stat-row">
+            <div className="stat">
+              <span className="stat-value">{analysisData.import_count || 0}</span>
+              <span className="stat-label">Imports</span>
+            </div>
+            <div className="stat">
+              <span className="stat-value">${analysisData.total_duty_paid?.toFixed(2) || '0.00'}</span>
+              <span className="stat-label">Total Duty Paid</span>
+            </div>
+          </div>
+        </div>
+
+        {exportId && (
+          <div className="summary-card">
+            <h3>Export Summary</h3>
+            <div className="stat-row">
+              <div className="stat">
+                <span className="stat-value">{analysisData.export_count || 0}</span>
+                <span className="stat-label">Exports</span>
+              </div>
+              <div className="stat">
+                <span className="stat-value">{analysisData.matched_exports || 0}</span>
+                <span className="stat-label">Matched Exports</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="summary-card highlight">
+          <h3>Drawback Summary</h3>
+          <div className="stat-row">
+            <div className="stat">
+              <span className="stat-value">${analysisData.potential_refund?.toFixed(2) || '0.00'}</span>
+              <span className="stat-label">Potential Refund</span>
+            </div>
+            <div className="stat">
+              <span className="stat-value">{analysisData.eligible_transactions || 0}</span>
+              <span className="stat-label">Eligible Transactions</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {analysisData.matches && analysisData.matches.length > 0 && (
+        <div className="matches-section">
+          <h3>Import-Export Matches</h3>
+          <div className="matches-table-container">
+            <table className="matches-table">
+              <thead>
+                <tr>
+                  <th>Product ID</th>
+                  <th>Import Date</th>
+                  <th>Import Qty</th>
+                  <th>Duty Paid</th>
+                  <th>Export Date</th>
+                  <th>Export Qty</th>
+                  <th>Potential Refund</th>
+                </tr>
+              </thead>
+              <tbody>
+                {analysisData.matches.map((match, index) => (
+                  <tr key={index}>
+                    <td>{match.product_id}</td>
+                    <td>{new Date(match.import_date).toLocaleDateString()}</td>
+                    <td>{match.import_qty}</td>
+                    <td>${match.duty_paid?.toFixed(2) || '0.00'}</td>
+                    <td>{match.export_date ? new Date(match.export_date).toLocaleDateString() : 'N/A'}</td>
+                    <td>{match.export_qty || 'N/A'}</td>
+                    <td>${match.refund_amount?.toFixed(2) || '0.00'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {analysisData.unmatched_imports && analysisData.unmatched_imports.length > 0 && (
+        <div className="unmatched-section">
+          <h3>Unmatched Imports</h3>
+          <div className="matches-table-container">
+            <table className="matches-table">
+              <thead>
+                <tr>
+                  <th>Product ID</th>
+                  <th>Import Date</th>
+                  <th>Quantity</th>
+                  <th>Duty Paid</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {analysisData.unmatched_imports.map((item, index) => (
+                  <tr key={index}>
+                    <td>{item.product_id}</td>
+                    <td>{new Date(item.import_date).toLocaleDateString()}</td>
+                    <td>{item.quantity}</td>
+                    <td>${item.duty_paid?.toFixed(2) || '0.00'}</td>
+                    <td>
+                      {item.eligible_for_future ? 
+                        <span className="status eligible">Eligible for Future Export</span> : 
+                        <span className="status ineligible">Ineligible</span>
+                      }
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <div className="actions">
+        <button className="refresh-button" onClick={analyzeData}>
+          Refresh Analysis
         </button>
       </div>
-      
-      {activeTab === 'upload' && (
-        <div className="upload-section">
-          <form onSubmit={handleSubmit} className="upload-form">
-            <div className="form-group">
-              <label htmlFor="import-file">Import Transactions CSV:</label>
-              <input
-                type="file"
-                id="import-file"
-                accept=".csv"
-                onChange={handleImportFileChange}
-                required
-              />
-              {importFile && (
-                <div className="file-name">Selected: {importFile.name}</div>
-              )}
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="export-file">Export Transactions CSV:</label>
-              <input
-                type="file"
-                id="export-file"
-                accept=".csv"
-                onChange={handleExportFileChange}
-                required
-              />
-              {exportFile && (
-                <div className="file-name">Selected: {exportFile.name}</div>
-              )}
-            </div>
-            
-            {error && <div className="error-message">{error}</div>}
-            
-            <div className="form-actions">
-              <button 
-                type="submit" 
-                className="submit-button" 
-                disabled={loading}
-              >
-                {loading ? "Processing..." : "Analyze Data"}
-              </button>
-            </div>
-          </form>
-          
-          {loading && (
-            <div className="loading-indicator">
-              Analyzing your data... This may take a moment.
-            </div>
-          )}
-        </div>
-      )}
-      
-      {activeTab === 'requirements' && (
-        <div className="requirements-section">
-          <DocumentRequirements />
-        </div>
-      )}
-      
-      {activeTab === 'documents' && (
-        <div className="documents-section">
-          {results ? (
-            <DocumentManager 
-              importId={null}
-              exportId={null}
-            />
-          ) : (
-            <div className="no-analysis-message">
-              <p>Please upload and analyze your data before accessing document management.</p>
-              <button 
-                className="primary-button"
-                onClick={() => handleTabChange('upload')}
-              >
-                Go to Upload
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-      
-      {results && (
-        <div className="results-container">
-          <h3>Analysis Results</h3>
-          
-          <div className="refund-estimate-banner">
-            <h2>Estimated Potential Refund</h2>
-            <div className="refund-amount">{formatCurrency(results.totalRefund)}</div>
-            <p>Based on {results.eligibleCount} eligible transactions with {results.matchedCount} export matches</p>
-          </div>
-          
-          <div className="summary-box">
-            <p><strong>Total Import Transactions:</strong> {results.count}</p>
-            <p><strong>Eligible Transactions:</strong> {results.eligibleCount}</p>
-            <p><strong>Matched with Exports:</strong> {results.matchedCount}</p>
-            <p><strong>Total Duty Paid:</strong> {formatCurrency(results.totalDuty)}</p>
-          </div>
-          
-          <div className="summary-report">
-            <h4>Summary Report</h4>
-            <pre>{results.summary}</pre>
-          </div>
-          
-          <div className="button-group">
-            <a 
-              href={`http://localhost:5000/api/download/${results.resultsFile}`} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="download-button"
-            >
-              Download Full Analysis CSV
-            </a>
-            
-            <button
-              type="button"
-              className="pdf-button"
-              onClick={() => window.open("http://localhost:5000/api/generate-pdf-report", "_blank")}
-            >
-              Generate PDF Report
-            </button>
-          </div>
-          
-          <div className="smb-guidance">
-            <h4>Small Business Guidance</h4>
-            <p>
-              Based on your import and export data, 
-              you may be eligible for duty drawback refunds. 
-              Small businesses typically recover between 5-15% of their total duty payments through drawback.
-            </p>
-            <p>
-              <strong>Next Steps:</strong> Download the PDF report for detailed guidance on filing your claim.
-            </p>
-          </div>
-          
-          <div className="transactions-table">
-            <h4>Import Transactions</h4>
-            <div className="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Entry Number</th>
-                    <th>Product ID</th>
-                    <th>Import Date</th>
-                    <th>Quantity</th>
-                    <th>Duty Paid</th>
-                    <th>Potential Refund</th>
-                    <th>Eligible</th>
-                    <th>Export Match</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {results.transactions.map((transaction, index) => (
-                    <tr key={index} className={transaction.is_eligible ? (transaction.has_export_match ? "matched-row" : "eligible-row") : ""}>
-                      <td>{transaction.entry_number || "-"}</td>
-                      <td>{transaction.product_id || "-"}</td>
-                      <td>{formatDate(transaction.import_date)}</td>
-                      <td>{transaction.quantity || "-"}</td>
-                      <td>{formatCurrency(transaction.duty_paid)}</td>
-                      <td>{formatCurrency(transaction.potential_refund)}</td>
-                      <td>{transaction.is_eligible ? "Yes" : "No"}</td>
-                      <td>{transaction.has_export_match ? "Yes" : "No"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          
-          <div className="transactions-table">
-            <h4>Export Transactions</h4>
-            <div className="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Export Reference</th>
-                    <th>Product ID</th>
-                    <th>Export Date</th>
-                    <th>Quantity</th>
-                    <th>Destination</th>
-                    <th>Matched to Import</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {results.exportTransactions.map((transaction, index) => (
-                    <tr key={index} className={transaction.matched_to_import ? "matched-row" : ""}>
-                      <td>{transaction.export_reference || "-"}</td>
-                      <td>{transaction.product_id || "-"}</td>
-                      <td>{formatDate(transaction.export_date)}</td>
-                      <td>{transaction.quantity || "-"}</td>
-                      <td>{transaction.destination || "-"}</td>
-                      <td>{transaction.matched_to_import ? "Yes" : "No"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
-};
+}
 
 export default ImportAnalyzer;

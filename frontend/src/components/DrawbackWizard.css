@@ -296,7 +296,7 @@
 .top-action-buttons {
   margin-top: 10px;
   margin-bottom: 25px;
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .top-action-buttons .primary-button {
@@ -396,6 +396,16 @@
     flex-direction: column;
     gap: 15px;
   }
+  
+  .export-buttons {
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 20px;
+  }
+  
+  .export-button {
+    width: 100%;
+  }
 }
 
 .unmatched-imports {
@@ -436,4 +446,64 @@
   padding: 20px;
   color: #757575;
   font-style: italic;
+}
+
+/* Export actions styles */
+.export-actions {
+  margin-top: 25px;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 20px;
+  text-align: center;
+}
+
+.export-actions h4 {
+  margin-bottom: 15px;
+  color: #00695c;
+  font-size: 18px;
+}
+
+.export-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.export-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  color: white;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  min-width: 160px;
+}
+
+.export-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.export-icon {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.csv-export {
+  background-color: #039be5; /* Light blue */
+}
+
+.csv-export:hover {
+  background-color: #0288d1;
+}
+
+.pdf-export {
+  background-color: #f44336; /* Red */
+}
+
+.pdf-export:hover {
+  background-color: #d32f2f;
 } 

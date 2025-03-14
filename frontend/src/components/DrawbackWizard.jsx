@@ -381,6 +381,31 @@ function DrawbackWizard() {
                       <span className="stat-value">{analysisResults.matched_exports}</span>
                     </div>
                   </div>
+                  
+                  {/* Export buttons */}
+                  <div className="export-actions">
+                    <h4>Save Analysis Results</h4>
+                    <div className="export-buttons">
+                      {analysisResults.results_file && (
+                        <a 
+                          href={`http://localhost:5000/api/preview/${analysisResults.results_file.split('/').pop()}`}
+                          className="export-button csv-export"
+                          download
+                        >
+                          <span className="export-icon">📊</span>
+                          Export as CSV
+                        </a>
+                      )}
+                      <a 
+                        href="http://localhost:5000/api/generate-pdf-report"
+                        className="export-button pdf-export"
+                        download
+                      >
+                        <span className="export-icon">📄</span>
+                        Export as PDF
+                      </a>
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="matches-table">
